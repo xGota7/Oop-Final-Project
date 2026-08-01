@@ -1,0 +1,319 @@
+---
+description: Quiz Arena — C++ Coding Standards and Project Constraints
+alwaysApply: true
+---
+
+# Quiz Arena — C++ Coding Standards and Project Constraints
+
+## Purpose
+
+This file defines the coding conventions and technical constraints that Cursor must follow when modifying the Quiz Arena project.
+
+The rules are based on the project requirements and the C++ conventions used in the course. New language features or libraries should not be introduced without prior approval.
+
+## How These Rules Were Developed
+
+These rules were added and refined throughout development based on issues found while reviewing Cursor's proposed changes.
+
+---
+
+## 1. Required Coding Restrictions
+
+| Not Allowed | Accepted Alternative |
+|-------------|----------------------|
+| `auto` | Explicit types: `int`, `double`, `Stock*`, `const string&`, `Question*`, etc. |
+| `override` | Redeclare the virtual function with the **same signature**; do **not** write the `override` keyword |
+| `unique_ptr` | Raw pointer + `new` / `delete` |
+| `auto_ptr` | Raw pointer + `new` / `delete` |
+| `shared_ptr`, `weak_ptr`, any smart pointer | Manual memory only |
+| `#include <memory>` for smart pointers | Not for project code |
+
+```cpp
+// Not Allowed
+auto x = 5;
+void ask() override;
+unique_ptr<Question> p;
+
+// Accepted Alternative
+int x = 5;
+void ask();              // virtual in base; same signature in derived
+Question* p = new MultipleChoiceQuestion(...);
+delete p;
+```
+
+---
+
+## 2. Not Allowed — C++ Language Constraints
+
+| Not Allowed | Notes |
+|-------------|-------|
+| `#pragma once` | Use `#ifndef` / `#define` / `#endif` only |
+| `reinterpret_cast` | Not in normal project code |
+| C-style cast `(Type*)ptr` | Prefer `static_cast` / `dynamic_cast` if a cast is needed |
+| `static_cast` for unsafe runtime downcast | Prefer `dynamic_cast` for polymorphic downcast |
+| `#define` macros for business logic | e.g. `#define min(a,b)` — use function templates instead. Macros OK only for include guards / `#ifdef DEBUG` |
+| Template class method bodies only in `.cpp` | Class template implementations must be in `.h` |
+| Calling constructor manually | Constructors run automatically |
+| Calling destructor manually | Destructors run automatically (except defining a pure virtual destructor body) |
+| Instantiating an abstract class | `Base b;` when base has pure virtual — illegal |
+| Shallow copy of `char*` / dynamic memory | `m_name = other.m_name` in copy constructor — not allowed |
+| Exceptions for normal / frequent control flow | Prefer `bool` when that is enough |
+| Operator overloading with unclear meaning | Only when meaning is obvious |
+| Defining new operator symbols | Cannot invent operators |
+| Changing operator precedence or operand count | Language rules are fixed |
+| Overloading: `::`, `.*`, `.`, `?:`, `sizeof`, `typeid` | These six cannot be overloaded |
+| Accessing base `private` from derived | Use `protected` in base if derived needs access |
+| `delete` through `Base*` without `virtual ~Base()` | Undefined behavior / leaks |
+| Modifying through a `const` reference | Only `const` methods on `const` objects |
+| Binding non-const reference / non-const pointer to const | Const-correctness violation |
+
+---
+
+## 3. Not Allowed — Unsafe Patterns
+
+| Not Allowed | Notes |
+|-------------|-------|
+| `goto` | Not used in course style |
+| Leaving `new` without matching `delete` | Memory leak |
+| `delete` on a non-owning pointer | Only the owner deletes |
+| Uninitialized local variables | Undefined / garbage values |
+| Aliasing external C-strings without deep copy | Must `new[]` + `strcpy` |
+| Skipping bounds check before index access | Out of range |
+| Skipping `nullptr` check before dereference | Crash risk |
+| `delete` vs `delete[]` mismatch | `new`→`delete`, `new[]`→`delete[]` |
+| Double delete | Set pointer to `nullptr` after free when resetting |
+| Self-assignment without `if (this != &other)` | Corrupts object |
+| Global variables for game state | State lives in objects |
+| Mixing `cin`/`cout` into entity / core logic classes | Separate UI layer |
+| Graphics libraries (SFML, SDL, etc.) | Terminal-only game |
+| Third-party libraries | Not allowed |
+
+---
+
+## 4. Not Allowed — Features Not Approved for This Project
+
+Do **not** use unless explicitly approved:
+
+- `constexpr`, `decltype`, `enum class`
+- `std::optional`, `std::variant`, `std::any`
+- Lambdas: `[](...) { }`
+- Range-based `for` that relies on `auto` (e.g. `for (auto x : v)`)
+- `NULL` instead of `nullptr` (project uses `nullptr`)
+- Structured bindings, `using enum`
+- `std::thread`, async, concurrency
+- `printf` as default I/O style (project uses `iostream`)
+
+---
+
+## 5. Allowed — Language & OOP
+
+| Allowed | Notes |
+|---------|-------|
+| `virtual` | Required for polymorphism |
+| `virtual ~Base()` | Required when deleting derived via `Base*` |
+| `virtual func() = 0` | Pure virtual / abstract base class |
+| `nullptr` | Preferred null pointer |
+| `new` / `delete` / `new[]` / `delete[]` | Manual memory management |
+| `std::string` | Allowed |
+| STL containers & algorithms | `vector`, `list`, `map`, `unordered_map`, `stack`, `queue`, `priority_queue`, `<algorithm>` — allowed in the final project; choose by access pattern |
+| `try` / `throw` / `catch` | For real errors (constructor failure, invalid `operator[]`, etc.) |
+| `dynamic_cast`, `typeid` | When safe downcast / RTTI is needed |
+| `const`, references, `friend` | Core course topics |
+| `template <class T>` / `template <typename T>` | Templates; class template bodies in `.h` |
+| Include guards `#ifndef NAME_H` | Required on every header |
+| `public` inheritance | `class Derived : public Base` |
+| `protected` members / protected base constructor | When derived needs access / only derived may construct base |
+| Operator overloading when meaning is clear | `=`, `==`, `<`, `[]`, `++`, `+=`, `<<`, `>>`, etc. |
+| `using namespace std;` | Match existing project files |
+
+---
+
+## 6. Allowed — Headers / Libraries
+
+**Standard headers:**
+`<iostream>`, `<string>`, `<cstring>`, `<cassert>`, `<cstdlib>`, `<ctime>`, `<fstream>`, `<iomanip>`, `<sstream>`, `<exception>`, `<stdexcept>`, `<algorithm>`
+
+**STL (final project):**
+`<vector>`, `<list>`, `<unordered_map>`, `<map>`, `<stack>`, `<queue>`
+
+**Windows debug (optional, development):**
+`<crtdbg.h>`, `_CRTDBG_MAP_ALLOC`, `_CrtDumpMemoryLeaks()`
+
+**Include style:**
+- Project headers: `#include "Question.h"`
+- Standard headers: `#include <iostream>`
+
+---
+
+## 7. Required — Memory & Ownership
+
+- Every `new` / `new[]` has matching `delete` / `delete[]`
+- After freeing when resetting an object: set pointer to `nullptr`
+- Check `ptr == nullptr` before dereference
+- Deep copy for owned `char*` / dynamic arrays in copy constructor and `operator=`
+- Self-assignment guard: `if (this != &other)`
+- In assignment: free old buffer before allocating new
+- Class with pointer member → **Rule of Three**: copy constructor + destructor + `operator=`
+- Non-owning pointer: store it, never `delete` it
+- Whoever allocates owns and frees
+
+```cpp
+// Deep copy C-string
+m_name = new char[strlen(name) + 1];
+strcpy(m_name, name);
+
+// Free
+delete[] m_name;
+m_name = nullptr;
+
+// Assignment
+ClassName& ClassName::operator=(const ClassName& other) {
+    if (this != &other) {
+        // free old, deep-copy new
+    }
+    return *this;
+}
+```
+
+---
+
+## 8. Required — Validation & Error Handling
+
+**nullptr / bounds (always when applicable):**
+- Function receives `T*` that may be null → early `return false` / `return`
+- Before `m_data[i]` → confirm `m_data != nullptr` and valid index
+- Stack push/pop → check not full / not empty
+- Reject negative sizes, zero durations, invalid amounts as appropriate
+
+**Return `bool` when an operation can fail locally** (preferred for expected failures):
+- insert / get / search / push / pop / save failure that can be handled → `true`/`false`
+
+**Use exceptions when:**
+- Constructor cannot build a valid object
+- `operator[]` has no valid return for bad index → `throw out_of_range` (or custom exception inheriting `exception`)
+- Do **not** use exceptions for normal expected loop/control flow
+
+**Compare pattern (when used):** `compare()` returns `-1` / `0` / `1`
+
+**Tests:** `assert(condition)`; wrap test `main` in `try` / `catch (const exception& e)` when appropriate
+
+---
+
+## 9. Required — Class & File Design
+
+| Rule | Detail |
+|------|--------|
+| Include guard every `.h` | `#ifndef FILE_H` / `#define FILE_H` / `#endif` — **not** `#pragma once` |
+| Split `.h` / `.cpp` | Declarations in header, definitions in cpp (except class templates → all in `.h`) |
+| Member fields | `m_` prefix (`m_score`, `m_name`) |
+| Static counters | `s_` prefix (`s_next_serial`) |
+| Getters / non-mutating methods | Mark `const` |
+| Read-only parameters | `const T&` |
+| Polymorphism | `virtual` on base methods; derived implements **without** `override` |
+| Polymorphic delete | `virtual ~Base()` on base |
+| Abstract base | Pure virtual `= 0`; never instantiate the ABC |
+| Init list | Use for const/ref members, base constructor args, members without default constructor |
+| Copy constructor form | `ClassName(const ClassName& other)` |
+| One class per file pair (typical) | e.g. `Player.h` + `Player.cpp` |
+
+```cpp
+// Polymorphism — course style (no override)
+class Base {
+public:
+    virtual ~Base() {}
+    virtual void doAction() = 0;
+};
+
+class Derived : public Base {
+public:
+    void doAction() { /* ... */ }
+};
+
+Base* p = new Derived();
+p->doAction();
+delete p;  // needs virtual ~Base()
+```
+
+---
+
+## 10. Required — Project Scope (Game + OOP)
+
+**Game (mandatory):**
+- Runs entirely in the terminal — no graphics libraries
+- Clear win and lose conditions
+- At least 2 distinct entity types
+- Game loop (repeated turns until end)
+- Persistent in-session state across turns
+- Text menu / command system
+- Save / load game state to a **file**
+
+**Optional bonus:** difficulty levels; high-score leaderboard persisted between sessions
+
+**OOP (mandatory):**
+- At least **4 classes**
+- At least **1 abstract base class** with pure virtual methods
+- Concrete classes inherit from the ABC
+- Polymorphic container of base pointers holding different derived types (e.g. `vector<Question*>`)
+- Virtual methods called through base pointers
+- Data members **private** or **protected**; public interfaces for access
+- Separation of concerns: game logic, UI, and data not mixed in one class
+- **No global variables** for game state
+
+**Build:** must compile with `g++ -std=c++17` with no errors
+
+**When using randomness:** `srand` + `time` seed in `main`
+
+---
+
+## 11. Decision Guidelines
+
+**nullptr check?**
+| Code | Check? |
+|------|--------|
+| `ptr->foo()` / `*ptr` | Yes (unless impossible by design) |
+| Start of `func(T* p)` | Yes — early return |
+| `T&` reference parameter | No (cannot be null) |
+
+**bool or throw?**
+| Situation | Prefer |
+|-----------|--------|
+| insert/get/push/pop/bounds | `bool` |
+| Constructor cannot succeed | `throw` (or safe default, e.g. Date → 1/1/1) |
+| Bad `operator[]` index | `throw` |
+
+**Need `virtual ~Base()`?**
+| Situation | Need? |
+|-----------|-------|
+| `delete` derived via `Base*` | Yes |
+| Abstract / polymorphic base | Yes |
+| No virtuals, no polymorphic delete | Not required |
+
+---
+
+## 12. Pre-Submission Checklist
+
+**Must not appear in code:**
+- [ ] No `auto`
+- [ ] No `override`
+- [ ] No smart pointers
+- [ ] No `#pragma once`
+- [ ] No `reinterpret_cast` in normal logic
+- [ ] No macro logic for algorithms
+- [ ] No shallow copy of owned pointers
+- [ ] No manual constructor/destructor calls
+- [ ] No abstract class instantiation
+- [ ] No globals for game state
+- [ ] No graphics / third-party libs
+
+**Must appear when applicable:**
+- [ ] `#ifndef` include guards
+- [ ] `m_` member prefix
+- [ ] `nullptr` and bounds checks
+- [ ] `bool` returns for fallible operations
+- [ ] Self-assignment guard + deep copy
+- [ ] Paired `new`/`delete` (and `new[]`/`delete[]`)
+- [ ] Pointers set to `nullptr` after free when resetting
+- [ ] `const` on getters / non-mutating methods
+- [ ] `virtual ~Base()` + virtual interface without `override` keyword
+- [ ] ≥4 classes, ABC, polymorphic container, UI/logic/data separation
+- [ ] Terminal game with win/lose, loop, save/load
