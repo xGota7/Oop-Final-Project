@@ -216,3 +216,6 @@ void ConsoleUI::showMessage(const string& message) const {
 void ConsoleUI::showError(const string& message) const {
     cout << "ERROR: " << message << endl;
 }
+
+
+//Its only for checking the code
