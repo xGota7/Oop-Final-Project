@@ -1,2 +1,390 @@
-# Oop-Final-Project
-Oop final project QuizArena game
+<div align="center">
+
+# Quiz Arena
+
+### A terminal-based quiz game built with C++17 and object-oriented programming
+
+![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
+![OOP](https://img.shields.io/badge/Design-Object--Oriented-6A5ACD?style=for-the-badge)
+![Terminal](https://img.shields.io/badge/Interface-Terminal-2D2D2D?style=for-the-badge&logo=windows-terminal&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Complete-2E8B57?style=for-the-badge)
+
+**Quiz Arena** challenges players with multiple-choice and true/false questions across three difficulty levels. The game includes persistent saves, score tracking, a multi-mode leaderboard, and a polymorphic question system.
+
+[Source Code](./QuizArena/) · [UML Diagram](./md%20Files/uml_diagram.md) · [Presentation](./Presentation/) · [Project Brief](./OOP_Final_Project.pdf)
+
+</div>
+
+---
+
+## Table of Contents
+
+- [About the Project](#about-the-project)
+- [Main Features](#main-features)
+- [How the Game Works](#how-the-game-works)
+- [Difficulty Levels](#difficulty-levels)
+- [Object-Oriented Design](#object-oriented-design)
+- [Class Diagram](#class-diagram)
+- [Save System](#save-system)
+- [Leaderboard](#leaderboard)
+- [Build and Run](#build-and-run)
+- [Repository Structure](#repository-structure)
+- [Data File Formats](#data-file-formats)
+- [Development Process](#development-process)
+- [Project Documentation](#project-documentation)
+
+---
+
+## About the Project
+
+Quiz Arena was developed as the final project for the **Object-Oriented Programming course** at Braude College of Engineering.
+
+The goal was to create a complete and playable terminal game while demonstrating the main concepts studied in the course:
+
+- Abstract classes and pure virtual methods
+- Inheritance and runtime polymorphism
+- Encapsulation and const-correctness
+- Separation between game logic, user interface, and data
+- Manual memory management
+- The Rule of Three and deep copying
+- STL containers selected according to access patterns
+- File-based save, load, and leaderboard persistence
+
+---
+
+## Main Features
+
+| Feature | Implementation |
+|---|---|
+| Question types | Multiple-choice and true/false |
+| Game modes | Easy, Normal, and Hard |
+| Scoring | Correct answer adds 10 points |
+| Lives | Wrong answer removes one life |
+| Save system | Separate progress for each difficulty under one player name |
+| Load system | Continue saved progress or start a new run |
+| Leaderboard | Best score per mode plus total score |
+| Persistence | Questions, saves, and leaderboard stored in text files |
+| Interface | Fully terminal-based menu system |
+| Architecture | Logic, UI, data, saves, and leaderboard separated into classes |
+
+---
+
+## How the Game Works
+
+From the main menu, the player can:
+
+1. Start a new game
+2. View, load, or delete saved games
+3. View the leaderboard
+4. Quit
+
+During a quiz round:
+
+- Enter the number of the selected answer.
+- Enter `0` to save the current progress and return to the main menu.
+- A correct answer adds **10 points**.
+- A wrong answer removes **one life** and reveals the correct answer.
+- The game ends when all questions are completed or the player runs out of lives.
+
+### Win and Lose Conditions
+
+| Result | Condition |
+|---|---|
+| **Win** | Complete the question set while alive and reach the target score |
+| **Lose** | Run out of lives before completing the game |
+
+---
+
+## Difficulty Levels
+
+| Difficulty | Starting Lives | Target Score |
+|---|---:|---:|
+| Easy | 5 | 80 |
+| Normal | 3 | 100 |
+| Hard | 2 | 120 |
+
+Each difficulty has independent save progress and an independent best score on the leaderboard.
+
+---
+
+## Object-Oriented Design
+
+The central hierarchy is based on the abstract `Question` class.
+
+```cpp
+class Question {
+public:
+    virtual ~Question();
+    virtual int getOptionCount() const = 0;
+    virtual string getOption(int index) const = 0;
+    virtual bool checkAnswer(int index) const = 0;
+    virtual Question* clone() const = 0;
+};
+```
+
+`MultipleChoiceQuestion` and `TrueFalseQuestion` implement the same interface differently. Both types are stored together in:
+
+```cpp
+vector<Question*> m_questions;
+```
+
+Virtual methods are called through `Question*`, allowing the game to work with different question types without depending on their concrete classes.
+
+### Key Design Decisions
+
+| Decision | Reason |
+|---|---|
+| `vector<Question*>` | Questions are loaded in order and accessed by index |
+| `vector<SaveSlot>` | Saves are displayed and selected by menu position |
+| `unordered_map<string, LeaderboardEntry>` | Leaderboard entries are searched and updated by player name |
+| `ConsoleUI` handles all input/output | Keeps display code separate from game rules |
+| `QuizGame` owns question objects | Creates one clear owner responsible for allocation and deletion |
+| Virtual `clone()` | Allows deep copying of polymorphic question objects |
+| Rule of Three in `QuizGame` | Prevents leaks, shared ownership, and double deletion |
+| `bool` for expected failures | Save and file failures are handled without unnecessary exceptions |
+
+---
+
+## Class Diagram
+
+```mermaid
+classDiagram
+    class Question {
+        <<abstract>>
+        #string m_text
+        #int m_points
+        +getOptionCount() int
+        +getOption(index) string
+        +checkAnswer(index) bool
+        +clone() Question*
+    }
+
+    class MultipleChoiceQuestion
+    class TrueFalseQuestion
+
+    class Player {
+        -string m_name
+        -int m_score
+        -int m_lives
+    }
+
+    class QuizGame {
+        -vector~Question*~ m_questions
+        -Player m_player
+        -Leaderboard m_leaderboard
+        +loadQuestions(path) bool
+        +run(ui)
+    }
+
+    class ConsoleUI
+    class SaveManager
+    class SaveSlot
+    class Leaderboard
+    class LeaderboardEntry
+
+    Question <|-- MultipleChoiceQuestion
+    Question <|-- TrueFalseQuestion
+    QuizGame o-- Question : owns
+    QuizGame *-- Player
+    QuizGame *-- Leaderboard
+    QuizGame ..> SaveManager : uses
+    QuizGame ..> ConsoleUI : uses
+    SaveManager *-- SaveSlot
+    Leaderboard *-- LeaderboardEntry
+```
+
+The complete UML diagram and relationship explanations are available in [`md Files/uml_diagram.md`](./md%20Files/uml_diagram.md).
+
+---
+
+## Save System
+
+Each player name represents one save slot. That slot contains separate progress for:
+
+- Easy
+- Normal
+- Hard
+
+A mode that has never been played is displayed as `X`.
+
+### Save Flow
+
+- A new game requires a unique player name.
+- Pressing `0` during a question saves under the current player name.
+- Saving updates only the selected difficulty.
+- Finishing a game does not delete the save.
+- Saved games can be deleted only through the saved-games menu.
+- When loading, the player selects a difficulty and then chooses between continuing or starting a new run.
+
+---
+
+## Leaderboard
+
+The leaderboard stores one entry per player name using:
+
+```cpp
+unordered_map<string, LeaderboardEntry>
+```
+
+For every player, it records:
+
+- Best Easy score
+- Best Normal score
+- Best Hard score
+- Total score across all played modes
+
+Rows are sorted by total score from highest to lowest. When two players have the same total, the player who played most recently is shown first.
+
+---
+
+## Build and Run
+
+1. Open the project files from the [`QuizArena`](./QuizArena/) folder in a C++17-compatible IDE.
+2. Add all `.cpp` and `.h` files to the project.
+3. Build the project.
+4. Run the executable from the folder that contains `questions.txt`.
+
+The game reads its question bank from `questions.txt` when it starts.
+
+The following files are created or updated while the game is running:
+
+- `saves.txt`
+- `leaderboard.txt`
+
+---
+
+## Repository Structure
+
+```text
+Oop-Final-Project/
+├── .cursor/                  # Cursor project rules and development constraints
+├── md Files/
+│   ├── prompt_log.md         # Prompts, responses, and accepted/rejected decisions
+│   ├── report.md             # Reflection report
+│   └── uml_diagram.md        # Full UML diagram and relationship explanations
+├── PicturesOfProcess/        # Screenshots documenting the development process
+├── Presentation/             # Final presentation files
+├── QuizArena/                # C++ source code and game data files
+├── OOP_Final_Project.pdf     # Official assignment brief
+└── README.md                 # Project overview
+```
+
+### Main Source Components
+
+| Component | Responsibility |
+|---|---|
+| `Question` | Abstract base class for all question types |
+| `MultipleChoiceQuestion` | Four-option question implementation |
+| `TrueFalseQuestion` | True/false question implementation |
+| `Player` | Player name, score, and lives |
+| `LeaderboardEntry` | One player's best scores and last-play order |
+| `Leaderboard` | Lookup, update, sorting, and file persistence |
+| `SaveSlot` | One player's save data for all three modes |
+| `SaveManager` | Save loading, storage, update, listing, and deletion |
+| `QuizGame` | Game controller, rules, turn loop, and session flow |
+| `ConsoleUI` | All console input and output |
+| `main.cpp` | Program entry point and object setup |
+
+---
+
+## Data File Formats
+
+<details>
+<summary><strong>Question bank format</strong></summary>
+
+### Multiple-choice question
+
+```text
+MC
+question text
+option 1
+option 2
+option 3
+option 4
+correct answer index (1-4)
+```
+
+### True/false question
+
+```text
+TF
+question text
+correct answer (1 = True, 2 = False)
+```
+
+Blank lines and lines beginning with `#` are ignored.
+
+</details>
+
+<details>
+<summary><strong>Save file format</strong></summary>
+
+```text
+SAVE
+player name
+EASY
+1
+score
+lives
+questionIndex
+NORMAL
+0
+HARD
+0
+END
+```
+
+Each difficulty is followed by `1` when progress exists or `0` when it has not been played.
+
+</details>
+
+<details>
+<summary><strong>Leaderboard file format</strong></summary>
+
+```text
+ENTRY
+player name
+lastPlayOrder
+easyScore
+normalScore
+hardScore
+END
+```
+
+A score of `-1` means that the player has not yet played that mode.
+
+</details>
+
+---
+
+## Development Process
+
+The project was developed using a course-approved Cursor workflow. Cursor was used as a development assistant, while every proposed change was reviewed against the assignment requirements and the C++ conventions used in the course.
+
+A dedicated rules file was maintained inside the `.cursor` folder to prevent unsupported language features, preserve the required coding style, and record constraints discovered during development.
+
+Screenshots from the development process are available in [`PicturesOfProcess`](./PicturesOfProcess/).
+
+---
+
+## Project Documentation
+
+| Document | Content |
+|---|---|
+| [Official Project Brief](./OOP_Final_Project.pdf) | Original assignment requirements |
+| [Prompt Log](./md%20Files/prompt_log.md) | Development prompts, agent summaries, and decisions |
+| [Reflection Report](./md%20Files/report.md) | Reflection on the development process and agent usage |
+| [UML Diagram](./md%20Files/uml_diagram.md) | Full class diagram and relationship explanations |
+| [Presentation](./Presentation/) | Slides used for the final presentation |
+| [Development Screenshots](./PicturesOfProcess/) | Visual documentation of the process |
+| [Source Code](./QuizArena/) | Complete C++ project files |
+
+---
+
+<div align="center">
+
+### Quiz Arena
+
+**C++17 · Object-Oriented Programming · Terminal Game · File Persistence**
+
+</div>
