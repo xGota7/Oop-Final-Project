@@ -2,7 +2,7 @@
 
 # Quiz Arena
 
-### A terminal-based quiz game built with C++17 and object-oriented programming
+### A terminal-based quiz game built with C++ and object oriented programming
 
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
 ![OOP](https://img.shields.io/badge/Design-Object--Oriented-6A5ACD?style=for-the-badge)
