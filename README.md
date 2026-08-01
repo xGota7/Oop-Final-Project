@@ -31,6 +31,7 @@
 - [Repository Structure](#repository-structure)
 - [Data File Formats](#data-file-formats)
 - [Development Process](#development-process)
+- [Development Process Gallery](#development-process-gallery)
 - [Project Documentation](#project-documentation)
 
 ---
@@ -359,11 +360,65 @@ A score of `-1` means that the player has not yet played that mode.
 
 ## Development Process
 
-The project was developed using a course-approved Cursor workflow. Cursor was used as a development assistant, while every proposed change was reviewed against the assignment requirements and the C++ conventions used in the course.
+The project was developed with guidance from the instructor-approved Cursor tool. Cursor was used as an advisor and development assistant, not as an autonomous code generator.
 
-A dedicated rules file was maintained inside the `.cursor` folder to prevent unsupported language features, preserve the required coding style, and record constraints discovered during development.
+Every suggestion was reviewed before being accepted. Proposed changes were checked against the assignment requirements and the C++ conventions used in the course, and were accepted, modified, or rejected according to our own design decisions.
 
-Screenshots from the development process are available in [`PicturesOfProcess`](./PicturesOfProcess/).
+A dedicated rules file was maintained inside the `.cursor` folder to prevent unsupported language features, preserve the required coding style, and document constraints discovered during development.
+
+---
+
+## Development Process Gallery
+
+The following screenshots show several important stages of the development process: planning before implementation, reviewing Cursor's suggestions, rejecting unsuitable design choices, and comparing technical alternatives.
+
+### Planning the Abstract Question Hierarchy
+
+<p align="center">
+  <img src="./PicturesOfProcess/1b%20Question%20Class%20Design%20Plan.png" width="900" alt="Question class design plan">
+</p>
+
+The abstract `Question` interface was planned before implementation, including its pure virtual methods and relationship with the derived question types.
+
+### Reviewing and Correcting a Cursor Suggestion
+
+<p align="center">
+  <img src="./PicturesOfProcess/2a%20Cursor%20Suggests%20Display%20Method.png" width="900" alt="Cursor suggests placing display logic inside Question">
+</p>
+
+Cursor suggested adding a `display()` method with `cout` inside `Question`.
+
+<p align="center">
+  <img src="./PicturesOfProcess/2b%20UI%20Separation%20Decision.png" width="900" alt="Decision to keep input and output inside ConsoleUI">
+</p>
+
+The suggestion was rejected because all input and output belong in `ConsoleUI`, while `Question` remains responsible only for data and polymorphic behavior.
+
+### Planning the Main Game Controller
+
+<p align="center">
+  <img src="./PicturesOfProcess/6b%20QuizGame%20Class%20Plan.png" width="900" alt="QuizGame class plan">
+</p>
+
+The `QuizGame` plan defines the main menu flow, question loading, the play session, and the separation between game rules and user interaction.
+
+### Choosing the Leaderboard Container
+
+<p align="center">
+  <img src="./PicturesOfProcess/11c%20Leaderboard%20Container%20Choice%20Decision.png" width="900" alt="Comparison between vector and unordered_map for the leaderboard">
+</p>
+
+The leaderboard design compared `vector` with `unordered_map`. The final choice was `unordered_map<string, LeaderboardEntry>` because entries are searched and updated by player name.
+
+### Planning the Difficulty System
+
+<p align="center">
+  <img src="./PicturesOfProcess/12a%20Difficulty%20Levels%20Plan.png" width="900" alt="Difficulty levels plan">
+</p>
+
+The difficulty system was planned with separate starting lives and target scores for Easy, Normal, and Hard modes.
+
+Additional screenshots are available in [`PicturesOfProcess`](./PicturesOfProcess/).
 
 ---
 
