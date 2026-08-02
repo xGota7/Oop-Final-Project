@@ -37,7 +37,7 @@
 
 ## About the Project
 
-Quiz Arena was developed as the final project for the **Object-Oriented Programming course** at Braude College of Engineering.
+Quiz Arena was developed as the final project for the **Object Oriented Programming course** at Braude College of Engineering.
 
 The goal was to create a complete and playable terminal game while demonstrating the main concepts studied in the course:
 
@@ -107,7 +107,7 @@ Each difficulty has independent save progress and an independent best score on t
 
 ---
 
-## Object-Oriented Design
+## Object Oriented Design
 
 The central hierarchy is based on the abstract `Question` class.
 
@@ -445,6 +445,6 @@ Additional screenshots are available in [`PicturesOfProcess`](./PicturesOfProces
 
 ### Quiz Arena
 
-**C++17 · Object-Oriented Programming · Terminal Game · File Persistence**
+**C++ · Object Oriented Programming · Terminal Game · File Persistence**
 
 </div>
