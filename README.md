@@ -11,10 +11,9 @@
 
 **Quiz Arena** challenges players with multiple-choice and true/false questions across three difficulty levels. The game includes persistent saves, score tracking, a multi-mode leaderboard, and a polymorphic question system.
 
-[Source Code](./QuizArena/) · [UML Diagram](./md%20Files/uml_diagram.md) · [Presentation](./Presentation/) · [Project Brief](./OOP_Final_Project.pdf)
+[Source Code](./QuizArena/) · [Build and Run](#build-and-run) · [UML Diagram](./md%20Files/uml_diagram.md) · [Presentation](./Presentation/) · [Project Brief](./OOP_Final_Project.pdf)
 
 </div>
-
 ---
 
 ## Table of Contents
