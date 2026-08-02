@@ -67,18 +67,16 @@ bool Leaderboard::saveToFile(const string& path) const {
     if (!out.is_open()) {
         return false;
     }
-
     unordered_map<string, LeaderboardEntry>::const_iterator currentPlayerEntry;
     for (currentPlayerEntry = m_entries.begin(); currentPlayerEntry != m_entries.end(); ++currentPlayerEntry) {
         out << "ENTRY" << '\n'
             << currentPlayerEntry->first << '\n'
-            << currentPlayerEntry->second.getLastOrder() << '\n';
+            << currentPlayerEntry->second.getLastOrder();
         for (int mode = 0; mode < LEADERBOARD_MODE_COUNT; mode++) {
-            out << currentPlayerEntry->second.getScore(mode) << '\n';
+            out << " " << currentPlayerEntry->second.getScore(mode);
         }
-        out << "END" << '\n';
+        out << '\n' << "END" << '\n';
     }
-
     out.close();
     return true;
 }

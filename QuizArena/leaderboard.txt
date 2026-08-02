@@ -1,7 +1,4 @@
 ENTRY
 Michael
-1
-140
--1
--1
+1 120 -1 -1
 END

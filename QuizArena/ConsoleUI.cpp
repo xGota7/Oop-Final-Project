@@ -160,14 +160,21 @@ void ConsoleUI::showSaveSlots(const SaveManager& saves,
     for (int i = 0; i < saves.getCount(); i++) {
         const SaveSlot& playersave = saves.getSlot(i);
         cout << (i + 1) << ") " << playersave.getName() << endl;
+
         for (int mode = 0; mode < SAVE_MODE_COUNT; mode++) {
             cout << "   " << difficultyName(mode) << ": ";
+
             if (!playersave.hasMode(mode)) {
                 cout << "X" << endl;
             } else {
+                int currentquestion = playersave.getCurrentIndex(mode) + 1;
+                if (currentquestion > totalQuestionsPerMode[mode]) {
+                    currentquestion = totalQuestionsPerMode[mode];
+                }
+
                 cout << "score " << playersave.getScore(mode)
                      << " | lives " << playersave.getLives(mode)
-                     << " | Q " << (playersave.getCurrentIndex(mode) + 1) << "/"
+                     << " | Q " << currentquestion << "/"
                      << totalQuestionsPerMode[mode]
                      << endl;
             }

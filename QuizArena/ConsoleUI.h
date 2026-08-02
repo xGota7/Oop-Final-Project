@@ -17,7 +17,7 @@ public:
     ConsoleUI();
 
     int showMainMenu() const;
-    int askDifficulty() const;
+    int askDifficulty(const int lives[], const int targets[]) const;
 
     void showQuestion(const Question& question, int number, int total) const;
     int askAnswerOrCommand(int optionCount) const;

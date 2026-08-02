@@ -207,7 +207,7 @@ void QuizGame::startNewGame(ConsoleUI& ui) {
     saves.load();
 
     string name = ui.askSaveNameNotTaken(saves);
-    int difficulty = ui.askDifficulty();
+    int difficulty = ui.askDifficulty(LIVES, TARGETS);
 
     applyDifficulty(difficulty);
     if (!loadQuestionsForDifficulty(difficulty)) {
@@ -252,7 +252,7 @@ void QuizGame::openSavesMenu(ConsoleUI& ui) {
 
         if (action == 1) {
             const SaveSlot& slot = saves.getSlot(index);
-            int mode = ui.askDifficulty();
+            int mode = ui.askDifficulty(LIVES, TARGETS);
 
             applyDifficulty(mode);
             if (!loadQuestionsForDifficulty(mode)) {
