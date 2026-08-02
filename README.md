@@ -240,10 +240,16 @@ Rows are sorted by total score from highest to lowest. When two players have the
 
 ## Build and Run
 
-1. Open the project files from the [`QuizArena`](./QuizArena/) folder in a C++17-compatible IDE.
-2. Add all `.cpp` and `.h` files to the project.
-3. Build the project.
-4. Run the executable from the folder that contains `questions.txt`.
+Before running the game, make sure the following are installed:
+
+- MSYS2 in the default folder: `C:\msys64`
+- The UCRT64 C++ compiler (`g++`)
+
+To build and run the game:
+
+1. Open the [`QuizArena`](./QuizArena/) folder.
+2. Run `run.bat`.
+3. The script will compile all source files and start the game automatically.
 
 The game reads its question bank from `questions.txt` when it starts.
 
