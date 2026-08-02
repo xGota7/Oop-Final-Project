@@ -55,15 +55,18 @@ int ConsoleUI::showMainMenu() const {
     return readInt(1, 4);
 }
 
-int ConsoleUI::askDifficulty() const {
+int ConsoleUI::askDifficulty(const int lives[], const int targets[]) const {
     cout << endl;
     cout << "Choose difficulty:" << endl;
-    cout << "1) Easy   (5 lives, target 80)" << endl;
-    cout << "2) Normal (3 lives, target 100)" << endl;
-    cout << "3) Hard   (2 lives, target 120)" << endl;
+
+    cout << "1) Easy   (" << lives[0] << " lives, target " << targets[0] << ")" << endl;
+
+    cout << "2) Normal (" << lives[1] << " lives, target " << targets[1] << ")" << endl;
+
+    cout << "3) Hard   (" << lives[2] << " lives, target " << targets[2] << ")" << endl;
+
     return readInt(1, 3) - 1;
 }
-
 void ConsoleUI::showQuestion(const Question& question, int number, int total) const {
     cout << endl;
     cout << "Question " << number << " of " << total << ":" << endl;
@@ -155,16 +158,16 @@ void ConsoleUI::showSaveSlots(const SaveManager& saves,
     }
 
     for (int i = 0; i < saves.getCount(); i++) {
-        const SaveSlot& s = saves.getSlot(i);
-        cout << (i + 1) << ") " << s.getName() << endl;
+        const SaveSlot& playersave = saves.getSlot(i);
+        cout << (i + 1) << ") " << playersave.getName() << endl;
         for (int mode = 0; mode < SAVE_MODE_COUNT; mode++) {
             cout << "   " << difficultyName(mode) << ": ";
-            if (!s.hasMode(mode)) {
+            if (!playersave.hasMode(mode)) {
                 cout << "X" << endl;
             } else {
-                cout << "score " << s.getScore(mode)
-                     << " | lives " << s.getLives(mode)
-                     << " | Q " << (s.getCurrentIndex(mode) + 1) << "/"
+                cout << "score " << playersave.getScore(mode)
+                     << " | lives " << playersave.getLives(mode)
+                     << " | Q " << (playersave.getCurrentIndex(mode) + 1) << "/"
                      << totalQuestionsPerMode[mode]
                      << endl;
             }
@@ -218,4 +221,4 @@ void ConsoleUI::showError(const string& message) const {
 }
 
 
-//Its only for checking the code
+//new github test

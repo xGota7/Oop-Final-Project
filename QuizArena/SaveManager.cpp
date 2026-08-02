@@ -131,20 +131,25 @@ bool SaveManager::store() const {
     }
 
     for (int i = 0; i < (int)m_slots.size(); i++) {
-        const SaveSlot& s = m_slots[i];
-        out << "SAVE" << '\n' << s.getName() << '\n';
+        const SaveSlot& playerSlot = m_slots[i];
+        out << "SAVE" << '\n' << playerSlot.getName() << '\n';
 
-        for (int mode = 0; mode < SAVE_MODE_COUNT; mode++) {
-            out << MODE_LABELS[mode] << '\n' << (s.hasMode(mode) ? 1 : 0) << '\n';
-            if (s.hasMode(mode)) {
-                out << s.getScore(mode) << '\n'
-                    << s.getLives(mode) << '\n'
-                    << s.getCurrentIndex(mode) << '\n';
-            }
-        }
+		for (int mode = 0; mode < SAVE_MODE_COUNT; mode++) {
+			out << MODE_LABELS[mode] << " "
+				<< (playerSlot.hasMode(mode) ? 1 : 0);
+
+			if (playerSlot.hasMode(mode)) {
+				out << " " << playerSlot.getScore(mode)
+					<< " " << playerSlot.getLives(mode)
+					<< " " << playerSlot.getCurrentIndex(mode);
+			}
+
+			out << '\n';
+		}
 
         out << "END" << '\n';
     }
+
     out.close();
     return true;
 }

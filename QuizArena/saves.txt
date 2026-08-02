@@ -2,9 +2,9 @@ SAVE
 Michael
 EASY
 1
-40
-5
+140
 4
+15
 NORMAL
 0
 HARD

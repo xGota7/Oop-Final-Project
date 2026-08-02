@@ -47,8 +47,8 @@ void Leaderboard::submitResult(const string& name, int score, int mode) {
 
     m_nextOrder++;
 
-    unordered_map<string, LeaderboardEntry>::iterator it = m_entries.find(name);
-    if (it == m_entries.end()) {
+    unordered_map<string, LeaderboardEntry>::iterator foundPlayerEntry = m_entries.find(name);
+    if (foundPlayerEntry == m_entries.end()) {
         LeaderboardEntry entry;
         entry.setScore(mode, score);
         entry.setLastOrder(m_nextOrder);
@@ -56,9 +56,9 @@ void Leaderboard::submitResult(const string& name, int score, int mode) {
         return;
     }
 
-    it->second.setLastOrder(m_nextOrder);
-    if (score > it->second.getScore(mode)) {
-        it->second.setScore(mode, score);
+    foundPlayerEntry->second.setLastOrder(m_nextOrder);
+    if (score > foundPlayerEntry->second.getScore(mode)) {
+        foundPlayerEntry->second.setScore(mode, score);
     }
 }
 
@@ -68,13 +68,13 @@ bool Leaderboard::saveToFile(const string& path) const {
         return false;
     }
 
-    unordered_map<string, LeaderboardEntry>::const_iterator it;
-    for (it = m_entries.begin(); it != m_entries.end(); ++it) {
+    unordered_map<string, LeaderboardEntry>::const_iterator currentPlayerEntry;
+    for (currentPlayerEntry = m_entries.begin(); currentPlayerEntry != m_entries.end(); ++currentPlayerEntry) {
         out << "ENTRY" << '\n'
-            << it->first << '\n'
-            << it->second.getLastOrder() << '\n';
+            << currentPlayerEntry->first << '\n'
+            << currentPlayerEntry->second.getLastOrder() << '\n';
         for (int mode = 0; mode < LEADERBOARD_MODE_COUNT; mode++) {
-            out << it->second.getScore(mode) << '\n';
+            out << currentPlayerEntry->second.getScore(mode) << '\n';
         }
         out << "END" << '\n';
     }
@@ -143,9 +143,9 @@ int Leaderboard::getCount() const {
 void Leaderboard::getSortedNames(vector<string>& names) const {
     names.clear();
 
-    unordered_map<string, LeaderboardEntry>::const_iterator it;
-    for (it = m_entries.begin(); it != m_entries.end(); ++it) {
-        names.push_back(it->first);
+    unordered_map<string, LeaderboardEntry>::const_iterator currentPlayerEntry;
+    for (currentPlayerEntry = m_entries.begin(); currentPlayerEntry != m_entries.end(); ++currentPlayerEntry) {
+        names.push_back(currentPlayerEntry->first);
     }
 
     for (int i = 0; i < (int)names.size() - 1; i++) {
@@ -169,10 +169,10 @@ void Leaderboard::getSortedNames(vector<string>& names) const {
 }
 
 bool Leaderboard::getEntry(const string& name, LeaderboardEntry& out) const {
-    unordered_map<string, LeaderboardEntry>::const_iterator it = m_entries.find(name);
-    if (it == m_entries.end()) {
+    unordered_map<string, LeaderboardEntry>::const_iterator foundPlayerEntry = m_entries.find(name);
+    if (foundPlayerEntry == m_entries.end()) {
         return false;
     }
-    out = it->second;
+    out = foundPlayerEntry->second;
     return true;
 }

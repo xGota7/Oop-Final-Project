@@ -7,6 +7,12 @@
 static const int MC_POINTS = 10;
 static const int TF_POINTS = 10;
 
+// Lives for Easy, Normal, Hard
+const int QuizGame::LIVES[3] = {5, 3, 2};
+
+// Target score to win for Easy, Normal, Hard
+const int QuizGame::TARGETS[3] = {80, 100, 120};
+
 static const char* SAVES_PATH = "saves.txt";
 static const char* LEADERBOARD_PATH = "leaderboard.txt";
 
@@ -68,8 +74,6 @@ void QuizGame::clearQuestions() {
 }
 
 void QuizGame::applyDifficulty(int difficulty) {
-    static const int LIVES[3] = {5, 3, 2};
-    static const int TARGETS[3] = {80, 100, 120};
 
     if (difficulty < 0 || difficulty > 2) {
         difficulty = DIFFICULTY_NORMAL;

@@ -15,6 +15,8 @@ const int DIFFICULTY_HARD = 2;
 
 class QuizGame {
 private:
+	static const int LIVES[3];
+	static const int TARGETS[3];
     vector<Question*> m_questions;
 
     Player m_player;
