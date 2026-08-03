@@ -114,10 +114,10 @@ classDiagram
 
     class ConsoleUI {
         +showMainMenu() int
-        +askDifficulty() int
+        +askDifficulty(lives[], targets[]) int
         +showQuestion(q, n, total)
         +askAnswerOrCommand(n) int
-        +showSaveSlots(saves, total)
+        +showSaveSlots(saves, totalQuestionsPerMode[])
         +askContinueOrNew() int
         +askSaveNameNotTaken(saves) string
         +showLeaderboard(board)
@@ -127,7 +127,7 @@ classDiagram
     SaveManager *-- SaveSlot : owns slots
     Question <|-- MultipleChoiceQuestion
     Question <|-- TrueFalseQuestion
-    QuizGame o-- "0..*" Question : owns (vector<Question*>)
+    QuizGame *-- "0..*" Question : owns
     QuizGame *-- "1" Player : has
     QuizGame *-- "1" Leaderboard : has
     QuizGame ..> SaveManager : uses
