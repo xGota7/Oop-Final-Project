@@ -328,19 +328,15 @@ Blank lines and lines beginning with `#` are ignored.
 ```text
 SAVE
 player name
-EASY
-1
-score
-lives
-questionIndex
-NORMAL
-0
-HARD
-0
+EASY 1 score lives questionIndex
+NORMAL 0
+HARD 0
 END
 ```
 
-Each difficulty is followed by `1` when progress exists or `0` when it has not been played.
+Each difficulty is stored on a single line.  
+`1` is followed by the score, remaining lives, and current question index.  
+`0` means that difficulty has no saved progress.
 
 </details>
 
