@@ -23,8 +23,6 @@ classDiagram
         +getPoints() const : int
     }
 
-    note for Question "Pure virtual: getOptionCount, getOption, checkAnswer, clone"
-
     class MultipleChoiceQuestion {
         -m_options : string[4]
         -m_correctIndex : int
