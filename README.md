@@ -14,6 +14,7 @@
 [Source Code](./QuizArena/) · [Build and Run](#build-and-run) · [UML Diagram](./md%20Files/uml_diagram.md) · [Presentation](./Presentation/) · [Project Brief](./OOP_Final_Project.pdf)
 
 </div>
+
 ---
 
 ## Table of Contents
@@ -58,7 +59,7 @@ The goal was to create a complete and playable terminal game while demonstrating
 |---|---|
 | Question types | Multiple-choice and true/false |
 | Game modes | Easy, Normal, and Hard |
-| Scoring | Correct answer adds 10 points |
+| Scoring | Correct answer adds 5 points |
 | Lives | Wrong answer removes one life |
 | Save system | Separate progress for each difficulty under one player name |
 | Load system | Continue saved progress or start a new run |
@@ -82,7 +83,7 @@ During a quiz round:
 
 - Enter the number of the selected answer.
 - Enter `0` to save the current progress and return to the main menu.
-- A correct answer adds **10 points**.
+- A correct answer adds **5 points**.
 - A wrong answer removes **one life** and reveals the correct answer.
 - The game ends when all questions are completed or the player runs out of lives.
 
@@ -91,7 +92,7 @@ During a quiz round:
 | Result | Condition |
 |---|---|
 | **Win** | Complete the question set while alive and reach the target score |
-| **Lose** | Run out of lives before completing the game |
+| **Lose** | Run out of lives before completing all questions, or complete all questions without reaching the target score |
 
 ---
 
@@ -99,9 +100,9 @@ During a quiz round:
 
 | Difficulty | Starting Lives | Target Score |
 |---|---:|---:|
-| Easy | 5 | 80 |
-| Normal | 3 | 100 |
-| Hard | 2 | 120 |
+| Easy | 5 | 85 |
+| Normal | 4 | 90 |
+| Hard | 3 | 95 |
 
 Each difficulty has independent save progress and an independent best score on the leaderboard.
 
@@ -151,46 +152,93 @@ Virtual methods are called through `Question*`, allowing the game to work with d
 classDiagram
     class Question {
         <<abstract>>
-        #string m_text
-        #int m_points
-        +getOptionCount() int
-        +getOption(index) string
-        +checkAnswer(index) bool
-        +clone() Question*
+        #m_text : string
+        #m_points : int
+        +getOptionCount() const : int
+        +getOption(index : int) const : string
+        +checkAnswer(index : int) const : bool
+        +clone() const : Question*
+        +getText() const : const string&
+        +getPoints() const : int
     }
 
-    class MultipleChoiceQuestion
-    class TrueFalseQuestion
+    class MultipleChoiceQuestion {
+        -m_options : string[4]
+        -m_correctIndex : int
+    }
+
+    class TrueFalseQuestion {
+        -m_correctIsTrue : bool
+    }
 
     class Player {
-        -string m_name
-        -int m_score
-        -int m_lives
+        -m_name : string
+        -m_score : int
+        -m_lives : int
+    }
+
+    class LeaderboardEntry {
+        -m_scores : int[3]
+        -m_lastOrder : int
+    }
+
+    class Leaderboard {
+        -m_entries : unordered_map~string, LeaderboardEntry~
+        -m_nextOrder : int
+    }
+
+    class SaveSlot {
+        -m_name : string
+        -m_hasMode : bool[3]
+        -m_score : int[3]
+        -m_lives : int[3]
+        -m_currentIndex : int[3]
+    }
+
+    class SaveManager {
+        -m_slots : vector~SaveSlot~
+        -m_path : string
     }
 
     class QuizGame {
-        -vector~Question*~ m_questions
-        -Player m_player
-        -Leaderboard m_leaderboard
-        +loadQuestions(path) bool
-        +run(ui)
+        -LIVES : const int[3]$
+        -TARGETS : const int[3]$
+        -m_questions : vector~Question*~
+        -m_player : Player
+        -m_leaderboard : Leaderboard
+        -m_difficulty : int
+        -m_targetScore : int
+        -m_startLives : int
+        -m_currentIndex : int
+        +loadQuestions(path : const string&) bool
+        +loadQuestionsForDifficulty(difficulty : int) bool
+        +run(ui : ConsoleUI&) void
     }
 
-    class ConsoleUI
-    class SaveManager
-    class SaveSlot
-    class Leaderboard
-    class LeaderboardEntry
+    class ConsoleUI {
+        +showMainMenu() const : int
+        +askDifficulty(lives : const int[], targets : const int[]) const : int
+        +showQuestion(question : const Question&, number : int, total : int) const : void
+        +showLeaderboard(board : const Leaderboard&) const : void
+        +showSaveSlots(saves : const SaveManager&, totalQuestionsPerMode : const int[3]) const : void
+    }
 
-    Question <|-- MultipleChoiceQuestion
-    Question <|-- TrueFalseQuestion
-    QuizGame o-- Question : owns
-    QuizGame *-- Player
-    QuizGame *-- Leaderboard
-    QuizGame ..> SaveManager : uses
-    QuizGame ..> ConsoleUI : uses
-    SaveManager *-- SaveSlot
-    Leaderboard *-- LeaderboardEntry
+    Question <|-- MultipleChoiceQuestion : inherits
+    Question <|-- TrueFalseQuestion : inherits
+
+    QuizGame "1" *-- "0..*" Question : owns questions in vector
+    QuizGame "1" *-- "1" Player : contains
+    QuizGame "1" *-- "1" Leaderboard : contains
+    Leaderboard "1" *-- "0..*" LeaderboardEntry : stores entries in map
+    SaveManager "1" *-- "0..*" SaveSlot : stores slots in vector
+
+    QuizGame --> SaveManager : uses
+    QuizGame --> ConsoleUI : uses
+
+    ConsoleUI --> Question : reads
+    ConsoleUI --> Player : reads
+    ConsoleUI --> Leaderboard : reads
+    ConsoleUI --> SaveManager : reads
 ```
 
 The complete UML diagram and relationship explanations are available in [`md Files/uml_diagram.md`](./md%20Files/uml_diagram.md).
@@ -226,7 +274,7 @@ The leaderboard stores one entry per player name using:
 unordered_map<string, LeaderboardEntry>
 ```
 
-For every player, it records:
+For every player who wins at least one game, it records:
 
 - Best Easy score
 - Best Normal score
@@ -250,7 +298,11 @@ To build and run the game:
 2. Run `run.bat`.
 3. The script will compile all source files and start the game automatically.
 
-The game reads its question bank from `questions.txt` when it starts.
+The game loads the question bank that matches the selected difficulty:
+
+- `questions_easy.txt`
+- `questions_normal.txt`
+- `questions_hard.txt`
 
 The following files are created or updated while the game is running:
 
@@ -346,10 +398,7 @@ Each difficulty is stored on a single line.
 ```text
 ENTRY
 player name
-lastPlayOrder
-easyScore
-normalScore
-hardScore
+lastPlayOrder easyScore normalScore hardScore
 END
 ```
 
