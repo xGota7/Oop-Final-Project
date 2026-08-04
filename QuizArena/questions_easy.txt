@@ -1,87 +1,102 @@
 # Quiz Arena — Easy (addition and subtraction only)
 
 MC
-What is 7 + 5?
+What is 8 + 6?
+14
+13
+15
+16
+1
+MC
+What is 18 - 9?
+9
 10
 11
 12
-13
-3
+1
 MC
-What is 15 - 8?
-5
-6
-7
-8
-3
+What is 12 + 7?
+19
+17
+18
+20
+1
 MC
-What is 23 + 16?
-37
-38
-39
-40
-3
-MC
-What is 50 - 27?
-21
-22
-23
-24
-3
-MC
-What is 9 + 14?
-21
-22
-23
-24
-3
-MC
-What is 31 - 19?
-10
-11
+What is 25 - 11?
+14
 12
 13
-3
+15
+1
 MC
-What is 6 + 28?
+What is 9 + 8?
+17
+16
+18
+19
+1
+MC
+What is 40 - 16?
+24
+23
+25
+26
+1
+MC
+What is 21 + 13?
+34
 32
 33
-34
 35
-3
+1
 MC
-What is 100 - 45?
-53
-54
-55
-56
-3
-MC
-What is 17 + 24?
-39
-40
-41
-42
-3
-MC
-What is 72 - 38?
+What is 60 - 28?
 32
+30
+31
 33
-34
-35
-3
+1
+MC
+What is 14 + 15?
+29
+27
+28
+30
+1
+MC
+What is 35 - 17?
+18
+17
+19
+20
+1
 TF
-4 + 4 equals 9.
+6 + 7 equals 14.
 2
 TF
-10 - 3 equals 7.
-1
-TF
-15 + 0 equals 15.
-1
-TF
-8 - 8 equals 1.
+20 - 12 equals 9.
 2
 TF
-12 + 5 equals 17.
-1
+11 + 9 equals 19.
+2
+TF
+30 - 14 equals 15.
+2
+TF
+5 + 18 equals 22.
+2
+TF
+44 - 20 equals 25.
+2
+TF
+16 + 13 equals 30.
+2
+TF
+70 - 35 equals 34.
+2
+TF
+25 + 25 equals 40.
+2
+TF
+100 - 60 equals 41.
+2

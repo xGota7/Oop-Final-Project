@@ -22,7 +22,7 @@ public:
     virtual string getOption(int index) const = 0;
     virtual bool checkAnswer(int index) const = 0;
     virtual Question* clone() const = 0;
-
+	
     // Behaviour shared by all question types.
     const string& getText() const;
     int getPoints() const;

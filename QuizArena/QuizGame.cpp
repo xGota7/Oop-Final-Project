@@ -4,14 +4,14 @@
 #include "SaveManager.h"
 #include <fstream>
 
-static const int MC_POINTS = 10;
-static const int TF_POINTS = 10;
+static const int MC_POINTS = 5;
+static const int TF_POINTS = 5;
 
 // Lives for Easy, Normal, Hard
-const int QuizGame::LIVES[3] = {5, 3, 2};
+const int QuizGame::LIVES[3] = {5, 4, 3};
 
 // Target score to win for Easy, Normal, Hard
-const int QuizGame::TARGETS[3] = {80, 100, 120};
+const int QuizGame::TARGETS[3] = {85, 90, 95};
 
 static const char* SAVES_PATH = "saves.txt";
 static const char* LEADERBOARD_PATH = "leaderboard.txt";
@@ -348,12 +348,14 @@ void QuizGame::playSession(ConsoleUI& ui) {
 
     bool won = m_player.isAlive() && isWin();
     ui.showGameOver(won, m_player, m_targetScore);
-
-    m_leaderboard.submitResult(m_player.getName(), m_player.getScore(), m_difficulty);
-    if (!m_leaderboard.saveToFile(LEADERBOARD_PATH)) {
-        ui.showError("Could not update the leaderboard file.");
+    
+    if (isWin()) {
+        m_leaderboard.submitResult(m_player.getName(), m_player.getScore(), m_difficulty);
+        if (!m_leaderboard.saveToFile(LEADERBOARD_PATH)) {
+            ui.showError("Could not update the leaderboard file.");
+        }
     }
-
+    
     updateSaveSlot();
 }
 

@@ -14,12 +14,13 @@ private:
 public:
     MultipleChoiceQuestion(const string& text, int points,
                            const string options[], int correctIndex);
-    virtual ~MultipleChoiceQuestion();
+    ~MultipleChoiceQuestion();
 
-    virtual int getOptionCount() const;
-    virtual string getOption(int index) const;
-    virtual bool checkAnswer(int index) const;
-    virtual Question* clone() const;
+    int getOptionCount() const;
+    string getOption(int index) const;
+    bool checkAnswer(int index) const;
+    Question* clone() const;
+	
 };
 
 #endif

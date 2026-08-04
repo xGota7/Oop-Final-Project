@@ -105,13 +105,31 @@ void ConsoleUI::showStatus(const Player& player) const {
 void ConsoleUI::showGameOver(bool won, const Player& player, int targetScore) const {
     cout << endl;
     cout << "==============================" << endl;
+
     if (won) {
-        cout << "YOU WIN! You reached the target score." << endl;
+        cout << "YOU WIN!" << endl;
+        cout << "You completed all questions and reached the target score." << endl;
+    } else if (!player.isAlive()) {
+        cout << "YOU LOST!" << endl;
+        cout << "You ran out of lives before completing all questions." << endl;
     } else {
-        cout << "GAME OVER. You ran out of lives." << endl;
+        cout << "YOU LOST!" << endl;
+        cout << "You completed all questions but did not reach the target score." << endl;
     }
+
     cout << "Final score: " << player.getScore()
          << " (target " << targetScore << ")" << endl;
+
+    if (player.isAlive()) {
+        cout << "Lives remaining: " << player.getLives() << endl;
+    }
+
+    if (won) {
+        cout << "Great job!" << endl;
+    } else {
+        cout << "Better luck next time!" << endl;
+    }
+
     cout << "==============================" << endl;
 }
 

@@ -1,8 +1,7 @@
 # UML Class Diagram — Quiz Arena
 
-This file documents the class structure for the presentation and report. It includes a
-Mermaid diagram (renders on GitHub and in many Markdown viewers), an ASCII fallback you can
-copy onto a slide or redraw by hand, and a written description of every relationship.
+This file documents the current class structure of **Quiz Arena** according to the latest
+`.h` and `.cpp` files.
 
 ---
 
@@ -12,152 +11,209 @@ copy onto a slide or redraw by hand, and a written description of every relation
 classDiagram
     class Question {
         <<abstract>>
-        #string m_text
-        #int m_points
-        +Question(text, points)
-        +~Question()
-        +getOptionCount() int*
-        +getOption(index) string*
-        +checkAnswer(index) bool*
-        +clone() Question*
-        +getText() string
-        +getPoints() int
+        #m_text : string
+        #m_points : int
+        +Question(text : const string&, points : int)
+        +~Question() virtual
+        +getOptionCount() const : int
+        +getOption(index : int) const : string
+        +checkAnswer(index : int) const : bool
+        +clone() const : Question*
+        +getText() const : const string&
+        +getPoints() const : int
     }
 
+    note for Question "Pure virtual: getOptionCount, getOption, checkAnswer, clone"
+
     class MultipleChoiceQuestion {
-        -string m_options[4]
-        -int m_correctIndex
-        +getOptionCount() int
-        +getOption(index) string
-        +checkAnswer(index) bool
-        +clone() Question*
+        -m_options : string[4]
+        -m_correctIndex : int
+        +MultipleChoiceQuestion(text : const string&, points : int, options : const string[], correctIndex : int)
+        +~MultipleChoiceQuestion()
+        +getOptionCount() const : int
+        +getOption(index : int) const : string
+        +checkAnswer(index : int) const : bool
+        +clone() const : Question*
     }
 
     class TrueFalseQuestion {
-        -bool m_correctIsTrue
-        +getOptionCount() int
-        +getOption(index) string
-        +checkAnswer(index) bool
-        +clone() Question*
+        -m_correctIsTrue : bool
+        +TrueFalseQuestion(text : const string&, points : int, correctIsTrue : bool)
+        +~TrueFalseQuestion()
+        +getOptionCount() const : int
+        +getOption(index : int) const : string
+        +checkAnswer(index : int) const : bool
+        +clone() const : Question*
     }
 
     class Player {
-        -string m_name
-        -int m_score
-        -int m_lives
-        +addScore(points)
-        +loseLife()
-        +isAlive() bool
-        +getScore() int
-        +getLives() int
-        +getName() string
+        -m_name : string
+        -m_score : int
+        -m_lives : int
+        +Player()
+        +Player(name : const string&, lives : int)
+        +setName(name : const string&) void
+        +setScore(score : int) void
+        +setLives(lives : int) void
+        +addScore(points : int) void
+        +loseLife() void
+        +getName() const : const string&
+        +getScore() const : int
+        +getLives() const : int
+        +isAlive() const : bool
     }
 
     class LeaderboardEntry {
-        -int m_scores[3]
-        -int m_lastOrder
-        +getScore(mode) int
-        +setScore(mode, score)
-        +getLastOrder() int
-        +setLastOrder(order)
-        +getTotalScore() int
+        -m_scores : int[3]
+        -m_lastOrder : int
+        +LeaderboardEntry()
+        +getScore(mode : int) const : int
+        +setScore(mode : int, score : int) void
+        +getLastOrder() const : int
+        +setLastOrder(order : int) void
+        +getTotalScore() const : int
     }
 
     class Leaderboard {
-        -unordered_map~string,LeaderboardEntry~ m_entries
-        -int m_nextOrder
-        +submitResult(name, score, mode)
-        +saveToFile(path) bool
-        +loadFromFile(path) bool
-        +getCount() int
-        +getSortedNames(names) void
-        +getEntry(name, out) bool
+        -m_entries : unordered_map~string, LeaderboardEntry~
+        -m_nextOrder : int
+        +Leaderboard()
+        +submitResult(name : const string&, score : int, mode : int) void
+        +saveToFile(path : const string&) const : bool
+        +loadFromFile(path : const string&) bool
+        +getCount() const : int
+        +getSortedNames(names : vector~string~&) const : void
+        +getEntry(name : const string&, out : LeaderboardEntry&) const : bool
     }
 
     class SaveSlot {
-        -string m_name
-        -bool m_hasMode[3]
-        -int m_score[3]
-        -int m_lives[3]
-        -int m_currentIndex[3]
-        +getName() string
-        +hasMode(mode) bool
-        +getScore(mode) int
-        +getLives(mode) int
-        +getCurrentIndex(mode) int
+        -m_name : string
+        -m_hasMode : bool[3]
+        -m_score : int[3]
+        -m_lives : int[3]
+        -m_currentIndex : int[3]
+        +SaveSlot()
+        +setName(name : const string&) void
+        +getName() const : const string&
+        +hasMode(mode : int) const : bool
+        +setHasMode(mode : int, has : bool) void
+        +getScore(mode : int) const : int
+        +setScore(mode : int, score : int) void
+        +getLives(mode : int) const : int
+        +setLives(mode : int, lives : int) void
+        +getCurrentIndex(mode : int) const : int
+        +setCurrentIndex(mode : int, currentIndex : int) void
     }
 
     class SaveManager {
-        -vector~SaveSlot~ m_slots
-        -string m_path
+        -m_slots : vector~SaveSlot~
+        -m_path : string
+        +SaveManager(path : const string&)
         +load() bool
-        +store() bool
-        +getCount() int
-        +getSlot(index) SaveSlot
-        +hasName(name) bool
-        +findIndexByName(name) int
-        +upsertSlot(slot)
-        +removeSlot(index) bool
+        +store() const : bool
+        +getCount() const : int
+        +getSlot(index : int) const : const SaveSlot&
+        +hasName(name : const string&) const : bool
+        +findIndexByName(name : const string&) const : int
+        +upsertSlot(slot : const SaveSlot&) void
+        +removeSlot(index : int) bool
     }
 
     class QuizGame {
-        -vector~Question*~ m_questions
-        -Player m_player
-        -Leaderboard m_leaderboard
-        -int m_difficulty
-        -int m_targetScore
-        -int m_startLives
-        -int m_currentIndex
-        +loadQuestions(path) bool
-        +run(ui)
+        -LIVES : const int[3]$
+        -TARGETS : const int[3]$
+        -m_questions : vector~Question*~
+        -m_player : Player
+        -m_leaderboard : Leaderboard
+        -m_difficulty : int
+        -m_targetScore : int
+        -m_startLives : int
+        -m_currentIndex : int
+        -addQuestion(question : Question*) void
+        -clearQuestions() void
+        -copyFrom(other : const QuizGame&) void
+        -applyDifficulty(difficulty : int) void
+        -questionFileForDifficulty(difficulty : int) const : string
+        -countQuestionsInFile(path : const string&) const : int
+        -startNewGame(ui : ConsoleUI&) void
+        -openSavesMenu(ui : ConsoleUI&) void
+        -playSession(ui : ConsoleUI&) void
+        -saveCurrentGame(ui : ConsoleUI&) void
+        -updateSaveSlot() bool
+        -isWin() const : bool
+        +QuizGame()
+        +QuizGame(other : const QuizGame&)
+        +operator=(other : const QuizGame&) : QuizGame&
+        +~QuizGame()
+        +loadQuestions(path : const string&) bool
+        +loadQuestionsForDifficulty(difficulty : int) bool
+        +run(ui : ConsoleUI&) void
+        +getQuestionCount() const : int
+        +getQuestionCountForDifficulty(difficulty : int) const : int
     }
 
     class ConsoleUI {
-        +showMainMenu() int
-        +askDifficulty(lives[], targets[]) int
-        +showQuestion(q, n, total)
-        +askAnswerOrCommand(n) int
-        +showSaveSlots(saves, totalQuestionsPerMode[])
-        +askContinueOrNew() int
-        +askSaveNameNotTaken(saves) string
-        +showLeaderboard(board)
+        -readInt(minValue : int, maxValue : int) const : int
+        -difficultyName(difficulty : int) const : string
+        +ConsoleUI()
+        +showMainMenu() const : int
+        +askDifficulty(lives : const int[], targets : const int[]) const : int
+        +showQuestion(question : const Question&, number : int, total : int) const : void
+        +askAnswerOrCommand(optionCount : int) const : int
+        +showAnswerResult(correct : bool, correctText : const string&, pointsGained : int, livesRemaining : int) const : void
+        +showStatus(player : const Player&) const : void
+        +showGameOver(won : bool, player : const Player&, targetScore : int) const : void
+        +showLeaderboard(board : const Leaderboard&) const : void
+        +showSaveSlots(saves : const SaveManager&, totalQuestionsPerMode : const int[3]) const : void
+        +askSavesAction() const : int
+        +askSaveNumber(count : int) const : int
+        +askContinueOrNew() const : int
+        +askSaveNameNotTaken(saves : const SaveManager&) const : string
+        +showMessage(message : const string&) const : void
+        +showError(message : const string&) const : void
     }
 
-    Leaderboard *-- LeaderboardEntry : map values
-    SaveManager *-- SaveSlot : owns slots
     Question <|-- MultipleChoiceQuestion
     Question <|-- TrueFalseQuestion
-    QuizGame *-- "0..*" Question : owns
-    QuizGame *-- "1" Player : has
-    QuizGame *-- "1" Leaderboard : has
-    QuizGame ..> SaveManager : uses
-    QuizGame ..> ConsoleUI : uses
-    ConsoleUI ..> Question : reads
-    ConsoleUI ..> Player : reads
-    ConsoleUI ..> Leaderboard : reads
-    ConsoleUI ..> SaveManager : reads
+
+    QuizGame "1" *-- "0..*" Question : owns and deletes
+    QuizGame "1" *-- "1" Player : m_player
+    QuizGame "1" *-- "1" Leaderboard : m_leaderboard
+    Leaderboard "1" *-- "0..*" LeaderboardEntry : map values
+    SaveManager "1" *-- "0..*" SaveSlot : vector values
+
+    QuizGame ..> MultipleChoiceQuestion : creates
+    QuizGame ..> TrueFalseQuestion : creates
+    QuizGame ..> SaveManager : uses locally
+    QuizGame ..> SaveSlot : reads and updates
+    QuizGame ..> ConsoleUI : uses by reference
+
+    ConsoleUI ..> Question : displays
+    ConsoleUI ..> Player : displays
+    ConsoleUI ..> Leaderboard : displays
+    ConsoleUI ..> LeaderboardEntry : reads
+    ConsoleUI ..> SaveManager : displays
+    ConsoleUI ..> SaveSlot : reads
 ```
 
 ---
 
 ## ASCII Fallback
 
-```
+```text
                          +------------------------+
-                         |      Question          |  <<abstract>>
+                         |       Question         |  <<abstract>>
                          |------------------------|
                          | # m_text : string      |
                          | # m_points : int       |
                          |------------------------|
-                         | + getOptionCount()* int|
-                         | + getOption(i)*  string|
-                         | + checkAnswer(i)* bool |
-                         | + clone()*    Question*|
-                         | + getText()      string|
-                         | + getPoints()       int|
+                         | + getOptionCount() = 0 |
+                         | + getOption(i) = 0     |
+                         | + checkAnswer(i) = 0   |
+                         | + clone() = 0          |
                          +------------------------+
                                    /_\
-                                    |  (inheritance)
+                                    |  inheritance
                  +------------------+------------------+
                  |                                     |
    +---------------------------+        +---------------------------+
@@ -167,69 +223,87 @@ classDiagram
    | - m_correctIndex : int    |        |                           |
    +---------------------------+        +---------------------------+
 
-   +-------------------------------------------------------------+
-   |                          QuizGame                           |
-   |-------------------------------------------------------------|
-   | - m_questions : vector<Question*>   (owns the objects)      |
-   | - m_player : Player              (composition)              |
-   | - m_leaderboard : Leaderboard    (composition)              |
-   | - m_difficulty / m_targetScore / m_startLives : int         |
-   | - m_currentIndex : int                                      |
-   |-------------------------------------------------------------|
-   | + loadQuestions(path) bool     + run(ui)                    |
-   +-------------------------------------------------------------+
-      | owns 0..*     | has 1        | has 1        \ uses      \ uses
-      v               v              v               v            v
- [ Question* ]    [ Player ]   [ Leaderboard ]  [ SaveManager ] [ ConsoleUI ]
-                   name/score/    unordered_map    vector           all I/O
-                   lives          <string,Entry>   <SaveSlot>
-                                  per-mode scores
+   +---------------------------------------------------------------+
+   |                           QuizGame                            |
+   |---------------------------------------------------------------|
+   | - LIVES[3] / TARGETS[3] : static const int                   |
+   | - m_questions : vector<Question*>                            |
+   | - m_player : Player                                          |
+   | - m_leaderboard : Leaderboard                                |
+   | - m_difficulty / m_targetScore / m_startLives : int          |
+   | - m_currentIndex : int                                       |
+   |---------------------------------------------------------------|
+   | + loadQuestions(path)                                        |
+   | + loadQuestionsForDifficulty(difficulty)                     |
+   | + run(ui)                                                    |
+   | + getQuestionCount()                                         |
+   | + getQuestionCountForDifficulty(difficulty)                  |
+   | + copy constructor / assignment / destructor                 |
+   +---------------------------------------------------------------+
+      | owns 0..*     | contains 1    | contains 1    \ uses
+      v               v               v                v
+ [ Question* ]    [ Player ]     [ Leaderboard ]  [ SaveManager ]
+                                  map<string,Entry> vector<SaveSlot>
+
+                                      [ ConsoleUI ]
+                                     all console I/O
 ```
 
 ---
 
 ## Relationship Descriptions
 
-| Relationship | Type | Meaning |
-|--------------|------|---------|
-| `MultipleChoiceQuestion` → `Question` | Inheritance | "is-a" question |
-| `TrueFalseQuestion` → `Question` | Inheritance | "is-a" question |
-| `QuizGame` → `Question` | Aggregation/ownership | Owns a `vector<Question*>`; deletes the objects in its destructor |
-| `QuizGame` → `Player` | Composition | Player is a member, lives and dies with the game |
-| `QuizGame` → `Leaderboard` | Composition | Leaderboard is a member of the game |
-| `QuizGame` → `SaveManager` | Dependency (uses) | Creates one locally to list/load/delete/upsert saved games |
-| `QuizGame` → `ConsoleUI` | Dependency (uses) | Passed a `ConsoleUI&` to talk to the user |
-| `Leaderboard` → `LeaderboardEntry` | Composition | Map values, one entry per player name |
-| `SaveManager` → `SaveSlot` | Composition | Vector of slots, one per player name |
-| `ConsoleUI` → `Question`/`Player`/`Leaderboard`/`SaveManager` | Dependency (reads) | Reads their data to display it, never owns them |
+| Relationship | Type | Meaning in the current code |
+|---|---|---|
+| `MultipleChoiceQuestion` → `Question` | Inheritance | A multiple-choice question is a concrete `Question`. |
+| `TrueFalseQuestion` → `Question` | Inheritance | A true/false question is a concrete `Question`. |
+| `QuizGame` → `Question` | Composition / ownership | Stores `vector<Question*>`, creates/clones the objects and deletes them in `clearQuestions()` and the destructor. |
+| `QuizGame` → `Player` | Composition | `m_player` is a value member whose lifetime is tied to the game. |
+| `QuizGame` → `Leaderboard` | Composition | `m_leaderboard` is a value member whose lifetime is tied to the game. |
+| `Leaderboard` → `LeaderboardEntry` | Composition | Entries are stored directly as values inside `unordered_map<string, LeaderboardEntry>`. |
+| `SaveManager` → `SaveSlot` | Composition | Slots are stored directly as values inside `vector<SaveSlot>`. |
+| `QuizGame` → `MultipleChoiceQuestion` / `TrueFalseQuestion` | Dependency | `loadQuestions()` creates the concrete question objects. |
+| `QuizGame` → `SaveManager` / `SaveSlot` | Dependency | Creates save managers locally and reads or updates save slots. |
+| `QuizGame` → `ConsoleUI` | Dependency | Receives `ConsoleUI&` and uses it for all user interaction. |
+| `ConsoleUI` → model classes | Dependency | Reads `Question`, `Player`, `Leaderboard`, `LeaderboardEntry`, `SaveManager` and `SaveSlot` data for display; it owns none of them. |
+
+---
+
+## Current Constants Reflected by the Code
+
+| Difficulty | Lives | Target score | Question file |
+|---|---:|---:|---|
+| Easy | 5 | 85 | `questions_easy.txt` |
+| Normal | 4 | 90 | `questions_normal.txt` |
+| Hard | 3 | 95 | `questions_hard.txt` |
+
+Both question types currently award **5 points** per correct answer.
 
 ---
 
 ## Where Each Required OOP Concept Appears
 
-| Requirement | Where in the diagram |
-|-------------|----------------------|
-| Abstract base class + pure virtual | `Question` (starred methods) |
-| Inheritance | `MultipleChoiceQuestion`, `TrueFalseQuestion` |
-| Polymorphism (container of base pointers) | `QuizGame::m_questions` = `vector<Question*>`, virtual calls in the turn loop |
-| Null pointer safety | `nullptr` checks before `delete`, `clone`, `addQuestion`, and using `current` in the turn loop |
-| Encapsulation | all members `-`/`#` (private/protected); `LeaderboardEntry` and `SaveSlot` are classes |
-| Separation of concerns | logic in `QuizGame`, I/O in `ConsoleUI`, saves in `SaveManager`, data in entities |
-| No global variables | all state inside `QuizGame`/`Player` |
-| STL containers (not always vector) | `vector<Question*>`, `vector<SaveSlot>`, `unordered_map<string, LeaderboardEntry>` |
-| Rule of Three | `QuizGame` destructor, copy ctor, assignment (deep copy via `clone()`) |
+| Requirement | Where in the current code |
+|---|---|
+| Abstract base class + pure virtual methods | `Question`; `getOptionCount`, `getOption`, `checkAnswer` and `clone` are pure virtual. |
+| Inheritance | `MultipleChoiceQuestion` and `TrueFalseQuestion` inherit publicly from `Question`. |
+| Polymorphism | `QuizGame::m_questions` is `vector<Question*>`; the game calls virtual methods through base pointers. |
+| Dynamic memory ownership | `QuizGame` creates, clones and deletes the `Question` objects. |
+| Rule of Three | `QuizGame` has a destructor, copy constructor and assignment operator; copying uses `clone()`. |
+| Encapsulation | Data members are private or protected and accessed through methods. |
+| Separation of concerns | Game logic in `QuizGame`, console I/O in `ConsoleUI`, saves in `SaveManager`, scores in `Leaderboard`, player state in `Player`. |
+| STL containers | `vector<Question*>`, `vector<SaveSlot>` and `unordered_map<string, LeaderboardEntry>`. |
+| Null pointer safety | Checks before adding, cloning, deleting and using question pointers. |
+| No global game state | Player, score, lives, saves, leaderboard data and question progress are stored inside objects. |
 
 ---
 
-## Notes for Drawing the Diagram on a Slide
+## Notes for the Presentation Slide
 
-- Put `Question` at the top with the two derived classes beneath it (the inheritance triangle).
-- Put `QuizGame` in the centre as the hub; draw arrows to `Player`, `Leaderboard`, the
-  `vector<Question*>`, `SaveManager`, and `ConsoleUI`.
-- `Leaderboard` holds an `unordered_map<string, LeaderboardEntry>`; show `LeaderboardEntry` as its
-  value type (scores per mode + last-order counter). There is no separate display-row class.
-- Show `SaveSlot` inside `SaveManager` — a class with per-mode arrays.
-- Mark `getOptionCount`, `getOption`, `checkAnswer`, and `clone` as pure virtual (italic or a
-  trailing `*`) — that is the single most important thing the instructor will look for.
-- There is **no timer** in the final design — do not draw time fields on `QuizGame` or
-  `Leaderboard`.
+- Place `Question` above `MultipleChoiceQuestion` and `TrueFalseQuestion` with inheritance arrows pointing to `Question`.
+- Place `QuizGame` in the centre as the controller.
+- Use filled diamonds from `QuizGame` to `Question`, `Player` and `Leaderboard`.
+- Use a filled diamond from `Leaderboard` to `LeaderboardEntry` and from `SaveManager` to `SaveSlot`.
+- Use dashed dependency arrows from `QuizGame` to `ConsoleUI` and `SaveManager`.
+- Mark the four polymorphic methods in `Question` as pure virtual.
+- Do not add a timer; the current design has no timer fields.
