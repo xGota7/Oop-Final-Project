@@ -173,27 +173,23 @@ classDiagram
         +showError(message : const string&) const : void
     }
 
-    Question <|-- MultipleChoiceQuestion
-    Question <|-- TrueFalseQuestion
-
-    QuizGame "1" *-- "0..*" Question : owns and deletes
-    QuizGame "1" *-- "1" Player : m_player
-    QuizGame "1" *-- "1" Leaderboard : m_leaderboard
-    Leaderboard "1" *-- "0..*" LeaderboardEntry : map values
-    SaveManager "1" *-- "0..*" SaveSlot : vector values
-
-    QuizGame ..> MultipleChoiceQuestion : creates
-    QuizGame ..> TrueFalseQuestion : creates
-    QuizGame ..> SaveManager : uses locally
-    QuizGame ..> SaveSlot : reads and updates
-    QuizGame ..> ConsoleUI : uses by reference
-
-    ConsoleUI ..> Question : displays
-    ConsoleUI ..> Player : displays
-    ConsoleUI ..> Leaderboard : displays
-    ConsoleUI ..> LeaderboardEntry : reads
-    ConsoleUI ..> SaveManager : displays
-    ConsoleUI ..> SaveSlot : reads
+    Question <|-- MultipleChoiceQuestion : inherits
+    Question <|-- TrueFalseQuestion : inherits
+    
+    QuizGame "1" *-- "0..*" Question : owns questions in vector
+    QuizGame "1" *-- "1" Player : contains
+    QuizGame "1" *-- "1" Leaderboard : contains
+    
+    Leaderboard "1" *-- "0..*" LeaderboardEntry : stores entries in map
+    SaveManager "1" *-- "0..*" SaveSlot : stores slots in vector
+    
+    QuizGame --> SaveManager : uses
+    QuizGame --> ConsoleUI : uses
+    
+    ConsoleUI --> Question : reads
+    ConsoleUI --> Player : reads
+    ConsoleUI --> Leaderboard : reads
+    ConsoleUI --> SaveManager : reads
 ```
 
 ---
