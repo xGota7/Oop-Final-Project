@@ -2,7 +2,9 @@
 
 This log records the meaningful prompts and follow-up discussions that affected the design and implementation of **Quiz Arena**. Related follow-up prompts are grouped under the same entry so the development process remains chronological without listing every small formatting request.
 
-We used Cursor in **Plan mode** for design and in **Agent mode** for implementation. Each entry includes what we asked, a summary of the agent's response, and our final decision.
+We used Cursor in **Plan mode** for design and in **Agent mode** for implementation. Each entry includes what we asked, a summary of the agent's response, and our final decision
+
+Prompt numbers follow the original development sequence. Some numbers are omitted because they referred to minor implementation or formatting requests that did not significantly affect the project's design.
 
 For more information, visit our GitHub repository: https://github.com/xGota7/Oop-Final-Project
 
@@ -85,6 +87,18 @@ Recommended one reusable numeric-input helper and passing a `const Question&` to
 
 ---
 
+## Prompt 6 — Adding `TrueFalseQuestion`
+
+**We asked:**
+> Add a second derived class called TrueFalseQuestion. It should work through the same Question interface and generate the True and False options instead of storing them.
+
+**Cursor said:**
+Suggested storing the correct answer as a boolean, returning two options through `getOption()`, and implementing `checkAnswer()` and `clone()` like the other concrete question type. It also updated the question loader to create a `TrueFalseQuestion` when it reads a `TF` block.
+
+**Decision: ACCEPTED** — this gave the project two concrete question types inside the same `vector<Question*>` and demonstrated runtime polymorphism. Generating the fixed True and False labels also avoided storing redundant option strings.
+
+---
+
 ## Prompt 7 — Wrong-answer scoring
 
 **Cursor suggested:**
@@ -150,7 +164,7 @@ The `struct` required less code, but the `class` version matched `Player`, the c
 
 ---
 
-## Prompt 15 — Choosing the Leaderboard Container
+## Prompt 15 — Choosing the leaderboard container
 
 **Cursor initially suggested:**
 Using a `vector<LeaderboardEntry>` to store the leaderboard entries.
