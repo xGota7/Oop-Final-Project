@@ -4,8 +4,8 @@
 #include <string>
 using namespace std;
 
-// Holds the state of the human player during one quiz session: name, current
-// score and remaining lives. Contains no game rules and no input/output.
+// Session state of the human player: name, score, and remaining lives.
+// QuizGame owns the rules. ConsoleUI owns all input and output.
 class Player {
 private:
     string m_name;

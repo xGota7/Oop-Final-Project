@@ -3,6 +3,7 @@
 
 static const char* MODE_LABELS[SAVE_MODE_COUNT] = {"EASY", "NORMAL", "HARD"};
 
+// Create an empty slot with no progress in any mode.
 SaveSlot::SaveSlot() {
     m_name = "";
     for (int i = 0; i < SAVE_MODE_COUNT; i++) {
@@ -13,50 +14,62 @@ SaveSlot::SaveSlot() {
     }
 }
 
+// Set the player name stored in this slot.
 void SaveSlot::setName(const string& name) {
     m_name = name;
 }
 
+// Return the player name stored in this slot.
 const string& SaveSlot::getName() const {
     return m_name;
 }
 
+// Return true if this slot has saved progress for the given mode.
 bool SaveSlot::hasMode(int mode) const {
     return m_hasMode[mode];
 }
 
+// Mark whether this slot contains progress for the given mode.
 void SaveSlot::setHasMode(int mode, bool has) {
     m_hasMode[mode] = has;
 }
 
+// Return the saved score for one mode.
 int SaveSlot::getScore(int mode) const {
     return m_score[mode];
 }
 
+// Store the score for one mode.
 void SaveSlot::setScore(int mode, int score) {
     m_score[mode] = score;
 }
 
+// Return the saved lives for one mode.
 int SaveSlot::getLives(int mode) const {
     return m_lives[mode];
 }
 
+// Store the lives for one mode.
 void SaveSlot::setLives(int mode, int lives) {
     m_lives[mode] = lives;
 }
 
+// Return the next question index saved for one mode.
 int SaveSlot::getCurrentIndex(int mode) const {
     return m_currentIndex[mode];
 }
 
+// Store the next question index for one mode.
 void SaveSlot::setCurrentIndex(int mode, int currentIndex) {
     m_currentIndex[mode] = currentIndex;
 }
 
+// Remember which file this manager reads and writes.
 SaveManager::SaveManager(const string& path) {
     m_path = path;
 }
 
+// Read one difficulty block from the save file into a slot.
 static bool readModeBlock(ifstream& in, SaveSlot& slot, int mode) {
     string label;
     int active = 0;
@@ -86,6 +99,7 @@ static bool readModeBlock(ifstream& in, SaveSlot& slot, int mode) {
     return true;
 }
 
+// Load every SAVE block from the file into memory.
 bool SaveManager::load() {
     m_slots.clear();
 
@@ -124,6 +138,7 @@ bool SaveManager::load() {
     return true;
 }
 
+// Write every in memory slot back to the save file.
 bool SaveManager::store() const {
     ofstream out(m_path.c_str());
     if (!out.is_open()) {
@@ -134,18 +149,18 @@ bool SaveManager::store() const {
         const SaveSlot& playerSlot = m_slots[i];
         out << "SAVE" << '\n' << playerSlot.getName() << '\n';
 
-		for (int mode = 0; mode < SAVE_MODE_COUNT; mode++) {
-			out << MODE_LABELS[mode] << " "
-				<< (playerSlot.hasMode(mode) ? 1 : 0);
+        for (int mode = 0; mode < SAVE_MODE_COUNT; mode++) {
+            out << MODE_LABELS[mode] << " "
+                << (playerSlot.hasMode(mode) ? 1 : 0);
 
-			if (playerSlot.hasMode(mode)) {
-				out << " " << playerSlot.getScore(mode)
-					<< " " << playerSlot.getLives(mode)
-					<< " " << playerSlot.getCurrentIndex(mode);
-			}
+            if (playerSlot.hasMode(mode)) {
+                out << " " << playerSlot.getScore(mode)
+                    << " " << playerSlot.getLives(mode)
+                    << " " << playerSlot.getCurrentIndex(mode);
+            }
 
-			out << '\n';
-		}
+            out << '\n';
+        }
 
         out << "END" << '\n';
     }
@@ -154,18 +169,22 @@ bool SaveManager::store() const {
     return true;
 }
 
+// Return how many saved players are stored.
 int SaveManager::getCount() const {
     return (int)m_slots.size();
 }
 
+// Return one saved player by index.
 const SaveSlot& SaveManager::getSlot(int index) const {
     return m_slots[index];
 }
 
+// Return true if a save already uses this player name.
 bool SaveManager::hasName(const string& name) const {
     return findIndexByName(name) >= 0;
 }
 
+// Find a save by player name, or return -1 if it does not exist.
 int SaveManager::findIndexByName(const string& name) const {
     for (int i = 0; i < (int)m_slots.size(); i++) {
         if (m_slots[i].getName() == name) {
@@ -175,6 +194,7 @@ int SaveManager::findIndexByName(const string& name) const {
     return -1;
 }
 
+// Insert a new slot or replace the existing slot with the same name.
 void SaveManager::upsertSlot(const SaveSlot& slot) {
     int index = findIndexByName(slot.getName());
     if (index >= 0) {
@@ -184,6 +204,7 @@ void SaveManager::upsertSlot(const SaveSlot& slot) {
     }
 }
 
+// Remove one save slot by index.
 bool SaveManager::removeSlot(int index) {
     if (index < 0 || index >= (int)m_slots.size()) {
         return false;

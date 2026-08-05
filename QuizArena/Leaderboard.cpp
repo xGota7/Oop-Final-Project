@@ -3,6 +3,7 @@
 
 static const int NOT_PLAYED = -1;
 
+// Create an entry with no scores in any mode.
 LeaderboardEntry::LeaderboardEntry() {
     m_lastOrder = 0;
     for (int mode = 0; mode < LEADERBOARD_MODE_COUNT; mode++) {
@@ -10,22 +11,27 @@ LeaderboardEntry::LeaderboardEntry() {
     }
 }
 
+// Return the best score stored for one mode.
 int LeaderboardEntry::getScore(int mode) const {
     return m_scores[mode];
 }
 
+// Store the best score for one mode.
 void LeaderboardEntry::setScore(int mode, int score) {
     m_scores[mode] = score;
 }
 
+// Return when this player last finished a counted game.
 int LeaderboardEntry::getLastOrder() const {
     return m_lastOrder;
 }
 
+// Store the order value used to break ties.
 void LeaderboardEntry::setLastOrder(int order) {
     m_lastOrder = order;
 }
 
+// Sum only modes that were actually played.
 int LeaderboardEntry::getTotalScore() const {
     int total = 0;
     for (int mode = 0; mode < LEADERBOARD_MODE_COUNT; mode++) {
@@ -36,10 +42,12 @@ int LeaderboardEntry::getTotalScore() const {
     return total;
 }
 
+// Create an empty leaderboard.
 Leaderboard::Leaderboard() {
     m_nextOrder = 0;
 }
 
+// Keep the better score for this mode and mark the player as most recent.
 void Leaderboard::submitResult(const string& name, int score, int mode) {
     if (mode < 0 || mode >= LEADERBOARD_MODE_COUNT) {
         return;
@@ -62,6 +70,7 @@ void Leaderboard::submitResult(const string& name, int score, int mode) {
     }
 }
 
+// Write every leaderboard entry to a text file.
 bool Leaderboard::saveToFile(const string& path) const {
     ofstream out(path.c_str());
     if (!out.is_open()) {
@@ -81,6 +90,7 @@ bool Leaderboard::saveToFile(const string& path) const {
     return true;
 }
 
+// Load leaderboard entries from a text file.
 bool Leaderboard::loadFromFile(const string& path) {
     ifstream in(path.c_str());
     if (!in.is_open()) {
@@ -134,10 +144,12 @@ bool Leaderboard::loadFromFile(const string& path) {
     return true;
 }
 
+// Return how many players are on the leaderboard.
 int Leaderboard::getCount() const {
     return (int)m_entries.size();
 }
 
+// Sort player names by total score, then by most recent play.
 void Leaderboard::getSortedNames(vector<string>& names) const {
     names.clear();
 
@@ -166,6 +178,7 @@ void Leaderboard::getSortedNames(vector<string>& names) const {
     }
 }
 
+// Copy one entry by name into out.
 bool Leaderboard::getEntry(const string& name, LeaderboardEntry& out) const {
     unordered_map<string, LeaderboardEntry>::const_iterator foundPlayerEntry = m_entries.find(name);
     if (foundPlayerEntry == m_entries.end()) {

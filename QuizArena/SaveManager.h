@@ -7,6 +7,8 @@ using namespace std;
 
 const int SAVE_MODE_COUNT = 3;
 
+// One player's saved progress for Easy, Normal, and Hard.
+// Each mode can be missing, so a player may have data in only some modes.
 class SaveSlot {
 private:
     string m_name;
@@ -32,6 +34,8 @@ public:
     void setCurrentIndex(int mode, int currentIndex);
 };
 
+// Loads and stores all save slots from a text file.
+// QuizGame uses this class for persistence. It does no input or output to the console.
 class SaveManager {
 private:
     vector<SaveSlot> m_slots;

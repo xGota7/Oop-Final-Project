@@ -8,10 +8,9 @@ using namespace std;
 
 const int LEADERBOARD_MODE_COUNT = 3;
 
-// The best score a single player reached in each difficulty mode.
+// Best score a single player reached in each difficulty mode.
 // A score of -1 means the player has never played that mode.
-// m_lastOrder records when the player last finished a game, used only to
-// break ties between equal totals on the leaderboard.
+// m_lastOrder is used only to break ties between equal totals.
 class LeaderboardEntry {
 private:
     int m_scores[LEADERBOARD_MODE_COUNT];
@@ -29,9 +28,8 @@ public:
     int getTotalScore() const;
 };
 
-// Keeps every player's best score per mode, keyed by the player's name.
-// A hash map is used because the main operation is "find this player by name
-// and keep their better result", which the map does without a manual search.
+// Stores every player's best score per mode, keyed by player name.
+// unordered_map is used because lookup and update by name is the main operation.
 class Leaderboard {
 private:
     unordered_map<string, LeaderboardEntry> m_entries;
@@ -47,11 +45,10 @@ public:
 
     int getCount() const;
 
-    // Fills 'names' with player names sorted for display: highest total first,
-    // ties broken by whoever played most recently.
+    // Fill names with players sorted by total score, then by most recent play.
     void getSortedNames(vector<string>& names) const;
 
-    // Copies one player's data into 'out'. Returns false if the name is unknown.
+    // Copy one player's data into out. Returns false if the name is unknown.
     bool getEntry(const string& name, LeaderboardEntry& out) const;
 };
 

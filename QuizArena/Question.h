@@ -4,10 +4,11 @@
 #include <string>
 using namespace std;
 
-// Abstract base class for every quiz question.
-// It stores the data shared by all question types (text and points) and
-// declares the polymorphic interface that each concrete type must implement.
-// It is never instantiated directly because of the pure virtual methods.
+// Abstract base for every question type.
+// Stores the shared text and point value, and defines the polymorphic
+// interface used by QuizGame and ConsoleUI. Derived classes implement
+// the behaviour that depends on the question type. This class does no
+// input or output, and is never instantiated directly.
 class Question {
 protected:
     string m_text;
@@ -15,15 +16,18 @@ protected:
 
 public:
     Question(const string& text, int points);
+
+    // Virtual so a derived object can be deleted safely through Question*.
     virtual ~Question();
 
-    // Polymorphic interface: each concrete question type behaves differently.
     virtual int getOptionCount() const = 0;
     virtual string getOption(int index) const = 0;
     virtual bool checkAnswer(int index) const = 0;
+
+    // Allocates a copy of the actual derived type. Needed so QuizGame can
+    // deep copy vector<Question*>. The caller owns the returned pointer.
     virtual Question* clone() const = 0;
-	
-    // Behaviour shared by all question types.
+
     const string& getText() const;
     int getPoints() const;
 };

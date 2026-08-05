@@ -3,11 +3,11 @@
 
 #include "Question.h"
 
-// A question answered with True or False. The two option strings are generated
-// on demand rather than stored.
+// Concrete Question answered with True or False.
+// Option text is built when asked, so the class stores only the correct side.
 class TrueFalseQuestion : public Question {
 private:
-    bool m_correctIsTrue;
+    bool m_correctIsTrue; // true means the correct option is True
 
 public:
     TrueFalseQuestion(const string& text, int points, bool correctIsTrue);

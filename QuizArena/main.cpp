@@ -1,8 +1,7 @@
 #include "QuizGame.h"
 #include "ConsoleUI.h"
 
-// Entry point. Creates the user interface and the game, then hands control
-// to the main menu. Questions are loaded when the player picks a difficulty.
+// Entry point. Create the UI and the game, then start the main menu.
 int main() {
     ConsoleUI ui;
     QuizGame game;

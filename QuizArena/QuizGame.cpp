@@ -16,15 +16,18 @@ const int QuizGame::TARGETS[3] = {85, 90, 95};
 static const char* SAVES_PATH = "saves.txt";
 static const char* LEADERBOARD_PATH = "leaderboard.txt";
 
+// Create a game with the normal difficulty as the default.
 QuizGame::QuizGame() {
     m_currentIndex = 0;
     applyDifficulty(DIFFICULTY_NORMAL);
 }
 
+// Copy another game, including a deep copy of every question.
 QuizGame::QuizGame(const QuizGame& other) {
     copyFrom(other);
 }
 
+// Replace this game with a copy of another game.
 QuizGame& QuizGame::operator=(const QuizGame& other) {
     if (this != &other) {
         clearQuestions();
@@ -33,11 +36,12 @@ QuizGame& QuizGame::operator=(const QuizGame& other) {
     return *this;
 }
 
+// Free every owned Question before the game object is destroyed.
 QuizGame::~QuizGame() {
     clearQuestions();
 }
 
-// Deep-copies every field from another game, cloning the questions so the two
+// Copy every field from another game. Questions are cloned so the two
 // games never share the same Question objects.
 void QuizGame::copyFrom(const QuizGame& other) {
     for (int i = 0; i < (int)other.m_questions.size(); i++) {
@@ -57,12 +61,14 @@ void QuizGame::copyFrom(const QuizGame& other) {
     m_currentIndex = other.m_currentIndex;
 }
 
+// Take ownership of one question pointer.
 void QuizGame::addQuestion(Question* question) {
     if (question != nullptr) {
         m_questions.push_back(question);
     }
 }
 
+// Delete every owned question and empty the container.
 void QuizGame::clearQuestions() {
     for (int i = 0; i < (int)m_questions.size(); i++) {
         if (m_questions[i] != nullptr) {
@@ -73,6 +79,7 @@ void QuizGame::clearQuestions() {
     m_questions.clear();
 }
 
+// Set lives and target score for the chosen difficulty.
 void QuizGame::applyDifficulty(int difficulty) {
 
     if (difficulty < 0 || difficulty > 2) {
@@ -84,6 +91,7 @@ void QuizGame::applyDifficulty(int difficulty) {
     m_targetScore = TARGETS[difficulty];
 }
 
+// Return the question file that belongs to a difficulty.
 string QuizGame::questionFileForDifficulty(int difficulty) const {
     if (difficulty == DIFFICULTY_EASY) {
         return "questions_easy.txt";
@@ -94,6 +102,7 @@ string QuizGame::questionFileForDifficulty(int difficulty) const {
     return "questions_normal.txt";
 }
 
+// Count MC and TF markers in a question file without fully parsing it.
 int QuizGame::countQuestionsInFile(const string& path) const {
     ifstream in(path.c_str());
     if (!in.is_open()) {
@@ -112,14 +121,17 @@ int QuizGame::countQuestionsInFile(const string& path) const {
     return count;
 }
 
+// Load the question file that matches the chosen difficulty.
 bool QuizGame::loadQuestionsForDifficulty(int difficulty) {
     return loadQuestions(questionFileForDifficulty(difficulty));
 }
 
+// Return how many questions a difficulty file contains.
 int QuizGame::getQuestionCountForDifficulty(int difficulty) const {
     return countQuestionsInFile(questionFileForDifficulty(difficulty));
 }
 
+// Read questions from a text file into the polymorphic question list.
 bool QuizGame::loadQuestions(const string& path) {
     ifstream in(path.c_str());
     if (!in.is_open()) {
@@ -151,6 +163,7 @@ bool QuizGame::loadQuestions(const string& path) {
                 break;
             }
 
+            // Files store a 1 based answer. The class stores a 0 based index.
             int correctIndex = correct1Based - 1;
             if (correctIndex >= 0 && correctIndex < MC_OPTION_COUNT) {
                 addQuestion(new MultipleChoiceQuestion(text, MC_POINTS, options, correctIndex));
@@ -178,10 +191,12 @@ bool QuizGame::loadQuestions(const string& path) {
     return !m_questions.empty();
 }
 
+// Return true when the current score reached the target for this mode.
 bool QuizGame::isWin() const {
     return m_player.getScore() >= m_targetScore;
 }
 
+// Run the main menu until the player quits.
 void QuizGame::run(ConsoleUI& ui) {
     m_leaderboard.loadFromFile(LEADERBOARD_PATH);
 
@@ -202,6 +217,7 @@ void QuizGame::run(ConsoleUI& ui) {
     ui.showMessage("Thanks for playing Quiz Arena!");
 }
 
+// Start a new named game at the chosen difficulty.
 void QuizGame::startNewGame(ConsoleUI& ui) {
     SaveManager saves(SAVES_PATH);
     saves.load();
@@ -221,6 +237,7 @@ void QuizGame::startNewGame(ConsoleUI& ui) {
     playSession(ui);
 }
 
+// Load, continue, restart, or delete a saved game.
 void QuizGame::openSavesMenu(ConsoleUI& ui) {
     SaveManager saves(SAVES_PATH);
     saves.load();
@@ -295,9 +312,7 @@ void QuizGame::openSavesMenu(ConsoleUI& ui) {
     }
 }
 
-// Plays through the questions from the current index. A correct answer adds
-// points; a wrong answer costs a life. The session ends when the questions run
-// out, the player loses all lives, or the player saves and quits.
+// Play from the current question until the run ends or the player saves.
 void QuizGame::playSession(ConsoleUI& ui) {
     if (m_questions.empty()) {
         ui.showError("No questions are loaded.");
@@ -348,17 +363,19 @@ void QuizGame::playSession(ConsoleUI& ui) {
 
     bool won = m_player.isAlive() && isWin();
     ui.showGameOver(won, m_player, m_targetScore);
-    
+
+    // Only scores that reached the target are stored on the leaderboard.
     if (isWin()) {
         m_leaderboard.submitResult(m_player.getName(), m_player.getScore(), m_difficulty);
         if (!m_leaderboard.saveToFile(LEADERBOARD_PATH)) {
             ui.showError("Could not update the leaderboard file.");
         }
     }
-    
+
     updateSaveSlot();
 }
 
+// Write the current player progress into saves.txt.
 bool QuizGame::updateSaveSlot() {
     SaveManager saves(SAVES_PATH);
     saves.load();
@@ -380,6 +397,7 @@ bool QuizGame::updateSaveSlot() {
     return saves.store();
 }
 
+// Save progress and tell the player whether it succeeded.
 void QuizGame::saveCurrentGame(ConsoleUI& ui) {
     if (updateSaveSlot()) {
         ui.showMessage("Game saved. Returning to menu.");
@@ -388,6 +406,7 @@ void QuizGame::saveCurrentGame(ConsoleUI& ui) {
     }
 }
 
+// Return how many questions are currently loaded.
 int QuizGame::getQuestionCount() const {
     return (int)m_questions.size();
 }

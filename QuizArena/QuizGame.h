@@ -13,11 +13,14 @@ const int DIFFICULTY_EASY = 0;
 const int DIFFICULTY_NORMAL = 1;
 const int DIFFICULTY_HARD = 2;
 
+// Game controller: rules, question list, player session, saves, and leaderboard.
+// Questions are stored as Question* so different types share one container.
+// All input and output is done through ConsoleUI.
 class QuizGame {
 private:
-	static const int LIVES[3];
-	static const int TARGETS[3];
-    vector<Question*> m_questions;
+    static const int LIVES[3];
+    static const int TARGETS[3];
+    vector<Question*> m_questions; // owned pointers, freed by clearQuestions()
 
     Player m_player;
     Leaderboard m_leaderboard;
@@ -45,6 +48,8 @@ private:
 
 public:
     QuizGame();
+
+    // Rule of Three: this class owns heap memory through m_questions.
     QuizGame(const QuizGame& other);
     QuizGame& operator=(const QuizGame& other);
     ~QuizGame();

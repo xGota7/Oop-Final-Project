@@ -8,6 +8,9 @@
 #include <string>
 using namespace std;
 
+// All terminal input and output for the game.
+// Displays data from Question, Player, Leaderboard, and SaveManager.
+// Contains no scoring rules and does not control the game loop.
 class ConsoleUI {
 private:
     int readInt(int minValue, int maxValue) const;
@@ -20,6 +23,8 @@ public:
     int askDifficulty(const int lives[], const int targets[]) const;
 
     void showQuestion(const Question& question, int number, int total) const;
+
+    // Returns a 1 based option index, or -1 to save and return to the menu.
     int askAnswerOrCommand(int optionCount) const;
 
     void showAnswerResult(bool correct, const string& correctText,

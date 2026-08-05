@@ -1,58 +1,25 @@
-# Reflection Report — Quiz Arena
+##Reflection Report — Quiz Arena (Michael Rudik & Shir Nehemya)
 
-**Course:** 31695 Object-Oriented Programming — Final Project  
-**Tool:** Cursor (AI coding assistant in the Cursor IDE)
+## 1. What did the agent do well?
+The agent was most helpful with small and repetitive parts of the project. After we had decided on the structure and responsibility of a class, it could help us complete focused parts inside the header and implementation files, such as constructors, getters, setters, and specific file reading operations. This saved us time and allowed us to focus more on the game design and behavior.
+It was also useful during the planning stage. Before implementing each part, we discussed the relevant classes, what each one should be responsible for, and how they should be connected. For example, the agent helped us compare a `vector` and an `unordered_map` for the leaderboard. Since leaderboard entries are looked up and updated by player name, we decided that an unordered_map made more sense. For questions and saved games, where the order matters, we continued using `vector`.
+Another useful part was that we could provide the agent with the coding rules from the course. In many cases, it followed our naming style, used header guards, and kept the code within the topics we had learned. It also helped us understand some decisions instead of only suggesting code. A good example was the Rule of Three. Because QuizGame owns dynamically allocated Question objects stored in a vector<Question*>, the agent explained why a destructor alone was not enough and suggested a virtual clone() method for making deep copies of the different question types.
+## 2. Where did it need correction?
+We still had to review every proposed change carefully. The agent sometimes used methods or libraries that were not part of the course. For example, it initially used `atoi()` while reading saved data. We had not learned this function, so we asked it to replace it with direct file stream reading using `>>`. It also suggested extra headers such as `sstream`, `iomanip`, and `limits`, which we later removed because they were not necessary.
+Some suggestions did not fit our design. The agent suggested adding a display method that used `cout` inside the `Question` class. We rejected this because we wanted a clear separation between the game data and the user interface. In the final design, `Question` only provides the question data, while `ConsoleUI` handles all input and output. It also suggested creating a separate LeaderboardRow class only for displaying the leaderboard. We rejected this suggestion because LeaderboardEntry already stores the scores and the tie break information, while the player name is stored as the key in the unordered_map. ConsoleUI can use the sorted player names to access and display the existing entries, so another class would not have a separate responsibility.
+The biggest corrections came from testing the actual game. Compiling the code and testing individual functions was not enough. We had to play the game several times and check the complete flow ourselves. During these runs, we found that the player almost always won, so we changed the win conditions and difficulty values. We also found that the leaderboard was ordered by name instead of total score and that a new game could be created with a name that already existed.
+Other problems appeared in the save and load flow, such as deciding whether loading a difficulty should continue the saved run or start a new one. These were not syntax errors. The code compiled and ran, but the game did not always behave in a way that made sense to a player. These cases required our judgment and could only be found by testing the complete gameplay flow.
 
----
+## 3. How did working with the agent affect our design decisions?
+Working with the agent made us explain our choices more clearly. When it suggested something, we could not accept it only because the code compiled. We had to check whether it matched the course requirements and whether it made sense for our game. This led to several important changes in the design.
+For example, we kept all console input and output inside `ConsoleUI` instead of placing display code in the question classes. We used an abstract `Question` base class with `MultipleChoiceQuestion` and `TrueFalseQuestion` as derived classes, which gave us a natural use of inheritance and polymorphism. We also chose different containers according to their purpose instead of using `vector` everywhere. The questions and save slots remain ordered, while the leaderboard uses player names as keys.
+The agent also made it easier to compare different ideas before implementing them. Sometimes we accepted its suggestion, as with `clone()` and the Rule of Three. In other cases, we modified or rejected its suggestions, as with the scoring system, the LeaderboardRow display class, and the play timer.
+This process made the final design simpler and closer to what we wanted. It also showed us that the agent is most useful for suggesting alternatives, explaining concepts, or helping with a first version of a specific method. The final design decisions still had to be made by us after reviewing how each suggestion affected the rest of the project.
 
-## What we built
+## 4. What would we do differently?
+Looking back, we would have made the scope of each request to Cursor more specific from the beginning. We used Cursor only for small and focused tasks after deciding ourselves what needed to be implemented. However, some prompts could have defined the exact task more clearly, such as reviewing one class interface, helping with one method, or checking one file-reading operation.
+We would also have repeated the relevant course restrictions in each prompt instead of relying only on the general coding rules we had already provided. This could have prevented suggestions such as `atoi()`, which we had not learned, or unnecessary libraries that did not fit our final implementation. When unfamiliar code was suggested, we would have asked for an explanation before accepting the change.
+Another thing we would have done differently was test every small change immediately after adding it. At first, we sometimes focused mainly on whether the code compiled and whether the individual function worked. However, several important problems only appeared when we tested the complete gameplay flow, including the difficulty balance, leaderboard ordering, duplicate player names, and save and load behavior.
+We would also have started a new Cursor conversation after completing each separate task. Some conversations became long and included information from several parts of the project, which could cause the agent to lose focus or use context that was no longer relevant. Keeping each conversation focused on one task would have made the suggestions easier to review and reduced confusion between different parts of the project.
 
-Quiz Arena is a text quiz game. The player answers math questions from a file. Correct answers add points. Wrong answers cost lives. The game has a menu, save and load, three difficulty levels, and a leaderboard that persists between runs.
-
-The design uses an abstract Question class, two derived types, a QuizGame controller, Player, SaveManager with SaveSlot, Leaderboard with LeaderboardEntry, and ConsoleUI for all I/O.
-
----
-
-## What Cursor did well
-
-Cursor was fast at generating the repetitive, standard parts of the code. Once we agreed on a class, it produced headers, getters, and file read/write quickly. It followed our naming style after we set it: m_ members, include guards, virtual destructor on the base class.
-
-When we asked in Plan mode why something should be a certain way, it gave useful comparisons. That helped us decide between vector and unordered_map for the leaderboard.
-
----
-
-## Where we had to correct Cursor
-
-- It wanted cout inside Question. We kept printing in ConsoleUI only.
-- It wanted to subtract points on wrong answers. We use lives instead.
-- It suggested exceptions when a save file is missing. We use bool because an empty save list is normal.
-- It only added a destructor first for QuizGame. We asked for full Rule of Three and virtual clone on questions.
-- It suggested atoi for files. We use >> because we did not learn atoi.
-- It used struct with public fields. We changed to class with private members.
-- It added a timer and TIME column. We removed all time tracking to keep the project simpler.
-- It added LeaderboardRow for display. We dropped it and read map entries directly in ConsoleUI.
-- It wanted iomanip and limits. We used tabs and a simple input clear loop.
-
-Most grading points came from us checking each suggestion against course rules and the assignment brief.
-
----
-
-## How Cursor changed our workflow
-
-We learned to start in Plan mode and sketch classes before Act mode. When we asked for code too early, we spent more time undoing choices.
-
-The container question was the best example. Cursor defaults to vector for everything. We kept vector for questions and saves because we access by position. We used unordered_map for the leaderboard because we access by player name. Explaining that difference in the presentation was important.
-
----
-
-## What we would do differently
-
-- Send the full list of course rules at the start: no auto, no smart pointers, bool for errors, manual memory.
-- Agree on the full class diagram before the first implementation prompt.
-- Test save and load round-trip earlier instead of only playing manually.
-
----
-
-## Honest summary
-
-Cursor saved time on repetitive code. It did not replace understanding. We can explain every class, every container choice, and every rejected suggestion. That was the goal of the assignment.
+For more information, visit our GitHub repository: https://github.com/xGota7/Oop-Final-Project

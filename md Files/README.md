@@ -1,5 +1,7 @@
 ## About the Game
 
+For more information, visit our GitHub repository: https://github.com/xGota7/Oop-Final-Project
+
 Quiz Arena is a terminal quiz game written in C++.
 
 The player answers two types of questions: multiple choice questions with four possible answers, and true or false questions.

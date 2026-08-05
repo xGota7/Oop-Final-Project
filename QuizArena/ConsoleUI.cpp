@@ -2,6 +2,7 @@
 #include <iostream>
 using namespace std;
 
+// Discard the rest of the current input line after reading a number.
 static void clearInputLine() {
     char ch = ' ';
     while (ch != '\n' && cin.get(ch)) {
@@ -11,6 +12,7 @@ static void clearInputLine() {
 ConsoleUI::ConsoleUI() {
 }
 
+// Read one integer in range and reject invalid input.
 int ConsoleUI::readInt(int minValue, int maxValue) const {
     int value = minValue;
     bool valid = false;
@@ -31,10 +33,12 @@ int ConsoleUI::readInt(int minValue, int maxValue) const {
         }
     }
 
+    // Leave cin ready for a later getline, such as the player name.
     clearInputLine();
     return value;
 }
 
+// Convert a difficulty index to the label shown in menus.
 string ConsoleUI::difficultyName(int difficulty) const {
     if (difficulty == 0) {
         return "EASY";
@@ -45,6 +49,7 @@ string ConsoleUI::difficultyName(int difficulty) const {
     return "NORMAL";
 }
 
+// Show the main menu and return the chosen option.
 int ConsoleUI::showMainMenu() const {
     cout << endl;
     cout << "===== QUIZ ARENA =====" << endl;
@@ -55,6 +60,7 @@ int ConsoleUI::showMainMenu() const {
     return readInt(1, 4);
 }
 
+// Ask for a difficulty and return it as a 0 based index.
 int ConsoleUI::askDifficulty(const int lives[], const int targets[]) const {
     cout << endl;
     cout << "Choose difficulty:" << endl;
@@ -65,19 +71,24 @@ int ConsoleUI::askDifficulty(const int lives[], const int targets[]) const {
 
     cout << "3) Hard   (" << lives[2] << " lives, target " << targets[2] << ")" << endl;
 
+    // Menu choices are 1 based. The rest of the game uses 0 based difficulty.
     return readInt(1, 3) - 1;
 }
+
+// Print one question and its options through the Question interface.
 void ConsoleUI::showQuestion(const Question& question, int number, int total) const {
     cout << endl;
     cout << "Question " << number << " of " << total << ":" << endl;
     cout << question.getText() << endl;
 
+    // Print options through the base interface so MC and TF use the same code.
     int count = question.getOptionCount();
     for (int i = 0; i < count; i++) {
         cout << "  " << (i + 1) << ") " << question.getOption(i) << endl;
     }
 }
 
+// Read an answer, or -1 if the player chose to save and leave.
 int ConsoleUI::askAnswerOrCommand(int optionCount) const {
     cout << "Enter your answer (1-" << optionCount
          << "), or 0 to save and return to the menu." << endl;
@@ -85,6 +96,7 @@ int ConsoleUI::askAnswerOrCommand(int optionCount) const {
     return (choice == 0) ? -1 : choice;
 }
 
+// Tell the player whether the last answer was correct.
 void ConsoleUI::showAnswerResult(bool correct, const string& correctText,
                                  int pointsGained, int livesRemaining) const {
     if (correct) {
@@ -95,6 +107,7 @@ void ConsoleUI::showAnswerResult(bool correct, const string& correctText,
     }
 }
 
+// Print the current name, score, and lives.
 void ConsoleUI::showStatus(const Player& player) const {
     cout << endl;
     cout << "[ " << player.getName()
@@ -102,10 +115,12 @@ void ConsoleUI::showStatus(const Player& player) const {
          << " | Lives: " << player.getLives() << " ]" << endl;
 }
 
+// Print the final result of a finished run.
 void ConsoleUI::showGameOver(bool won, const Player& player, int targetScore) const {
     cout << endl;
     cout << "==============================" << endl;
 
+    // Three end states: win, out of lives, or finished below the target.
     if (won) {
         cout << "YOU WIN!" << endl;
         cout << "You completed all questions and reached the target score." << endl;
@@ -133,6 +148,7 @@ void ConsoleUI::showGameOver(bool won, const Player& player, int targetScore) co
     cout << "==============================" << endl;
 }
 
+// Print the leaderboard sorted by total score.
 void ConsoleUI::showLeaderboard(const Leaderboard& board) const {
     cout << endl;
     cout << "===== LEADERBOARD =====" << endl;
@@ -155,6 +171,7 @@ void ConsoleUI::showLeaderboard(const Leaderboard& board) const {
         cout << (rank + 1) << "\t" << names[rank];
         for (int mode = 0; mode < LEADERBOARD_MODE_COUNT; mode++) {
             cout << "\t";
+            // A negative score means this mode was never played.
             if (entry.getScore(mode) < 0) {
                 cout << "X";
             } else {
@@ -165,6 +182,7 @@ void ConsoleUI::showLeaderboard(const Leaderboard& board) const {
     }
 }
 
+// Print every saved player and the progress stored for each mode.
 void ConsoleUI::showSaveSlots(const SaveManager& saves,
                               const int totalQuestionsPerMode[SAVE_MODE_COUNT]) const {
     cout << endl;
@@ -200,6 +218,7 @@ void ConsoleUI::showSaveSlots(const SaveManager& saves,
     }
 }
 
+// Ask whether to load a save, delete a save, or go back.
 int ConsoleUI::askSavesAction() const {
     cout << endl;
     cout << "Choose an action:" << endl;
@@ -209,11 +228,13 @@ int ConsoleUI::askSavesAction() const {
     return readInt(1, 3);
 }
 
+// Ask which save slot to use, or 0 to cancel.
 int ConsoleUI::askSaveNumber(int count) const {
     cout << "Enter the save number (1-" << count << "), or 0 to cancel." << endl;
     return readInt(0, count);
 }
 
+// Ask whether to continue a saved mode or start that mode again.
 int ConsoleUI::askContinueOrNew() const {
     cout << endl;
     cout << "Choose an action for this mode:" << endl;
@@ -222,6 +243,7 @@ int ConsoleUI::askContinueOrNew() const {
     return readInt(1, 2);
 }
 
+// Ask for a player name that is not already used by a save.
 string ConsoleUI::askSaveNameNotTaken(const SaveManager& saves) const {
     while (true) {
         cout << "Enter your name (this will also be your save name): ";
@@ -237,13 +259,12 @@ string ConsoleUI::askSaveNameNotTaken(const SaveManager& saves) const {
     }
 }
 
+// Print a general message.
 void ConsoleUI::showMessage(const string& message) const {
     cout << message << endl;
 }
 
+// Print an error message.
 void ConsoleUI::showError(const string& message) const {
     cout << "ERROR: " << message << endl;
 }
-
-
-//new github test
