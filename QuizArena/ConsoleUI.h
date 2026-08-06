@@ -34,7 +34,7 @@ public:
     void showLeaderboard(const Leaderboard& board) const;
 
     void showSaveSlots(const SaveManager& saves,
-                       const int totalQuestionsPerMode[SAVE_MODE_COUNT]) const;
+                       const int totalQuestionsPerDiff[numOfDifficulties]) const;
     int askSavesAction() const;
     int askSaveNumber(int count) const;
     int askContinueOrNew() const;

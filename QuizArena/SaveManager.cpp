@@ -1,68 +1,7 @@
 #include "SaveManager.h"
 #include <fstream>
 
-static const char* MODE_LABELS[SAVE_MODE_COUNT] = {"EASY", "NORMAL", "HARD"};
-
-// Create an empty slot with no progress in any mode.
-SaveSlot::SaveSlot() {
-    m_name = "";
-    for (int i = 0; i < SAVE_MODE_COUNT; i++) {
-        m_hasMode[i] = false;
-        m_score[i] = 0;
-        m_lives[i] = 0;
-        m_currentIndex[i] = 0;
-    }
-}
-
-// Set the player name stored in this slot.
-void SaveSlot::setName(const string& name) {
-    m_name = name;
-}
-
-// Return the player name stored in this slot.
-const string& SaveSlot::getName() const {
-    return m_name;
-}
-
-// Return true if this slot has saved progress for the given mode.
-bool SaveSlot::hasMode(int mode) const {
-    return m_hasMode[mode];
-}
-
-// Mark whether this slot contains progress for the given mode.
-void SaveSlot::setHasMode(int mode, bool has) {
-    m_hasMode[mode] = has;
-}
-
-// Return the saved score for one mode.
-int SaveSlot::getScore(int mode) const {
-    return m_score[mode];
-}
-
-// Store the score for one mode.
-void SaveSlot::setScore(int mode, int score) {
-    m_score[mode] = score;
-}
-
-// Return the saved lives for one mode.
-int SaveSlot::getLives(int mode) const {
-    return m_lives[mode];
-}
-
-// Store the lives for one mode.
-void SaveSlot::setLives(int mode, int lives) {
-    m_lives[mode] = lives;
-}
-
-// Return the next question index saved for one mode.
-int SaveSlot::getCurrentIndex(int mode) const {
-    return m_currentIndex[mode];
-}
-
-// Store the next question index for one mode.
-void SaveSlot::setCurrentIndex(int mode, int currentIndex) {
-    m_currentIndex[mode] = currentIndex;
-}
+static const char* DIFFICULTY_LABELS[numOfDifficulties] = {"EASY", "NORMAL", "HARD"};
 
 // Remember which file this manager reads and writes.
 SaveManager::SaveManager(const string& path) {
@@ -70,18 +9,18 @@ SaveManager::SaveManager(const string& path) {
 }
 
 // Read one difficulty block from the save file into a slot.
-static bool readModeBlock(ifstream& in, SaveSlot& slot, int mode) {
+static bool readDifficultyBlock(ifstream& in, SaveSlot& slot, int difficulty) {
     string label;
     int active = 0;
 
-    if (!(in >> label) || label != MODE_LABELS[mode]) {
+    if (!(in >> label) || label != DIFFICULTY_LABELS[difficulty]) {
         return false;
     }
     if (!(in >> active)) {
         return false;
     }
 
-    slot.setHasMode(mode, active != 0);
+    slot.setDoneDifficulty(difficulty, active != 0);
     if (active == 0) {
         return true;
     }
@@ -93,9 +32,9 @@ static bool readModeBlock(ifstream& in, SaveSlot& slot, int mode) {
         return false;
     }
 
-    slot.setScore(mode, score);
-    slot.setLives(mode, lives);
-    slot.setCurrentIndex(mode, currentIndex);
+    slot.setScore(difficulty, score);
+    slot.setLives(difficulty, lives);
+    slot.setCurrentIndex(difficulty, currentIndex);
     return true;
 }
 
@@ -124,8 +63,8 @@ bool SaveManager::load() {
         slot.setName(name);
 
         bool ok = true;
-        for (int mode = 0; mode < SAVE_MODE_COUNT && ok; mode++) {
-            ok = readModeBlock(in, slot, mode);
+        for (int difficulty = 0; difficulty < numOfDifficulties && ok; difficulty++) {
+            ok = readDifficultyBlock(in, slot, difficulty);
         }
         if (!ok || !(in >> endMark) || endMark != "END") {
             break;
@@ -149,14 +88,14 @@ bool SaveManager::store() const {
         const SaveSlot& playerSlot = m_slots[i];
         out << "SAVE" << '\n' << playerSlot.getName() << '\n';
 
-        for (int mode = 0; mode < SAVE_MODE_COUNT; mode++) {
-            out << MODE_LABELS[mode] << " "
-                << (playerSlot.hasMode(mode) ? 1 : 0);
+        for (int difficulty = 0; difficulty < numOfDifficulties; difficulty++) {
+            out << DIFFICULTY_LABELS[difficulty] << " "
+                << (playerSlot.doneDifficulty(difficulty) ? 1 : 0);
 
-            if (playerSlot.hasMode(mode)) {
-                out << " " << playerSlot.getScore(mode)
-                    << " " << playerSlot.getLives(mode)
-                    << " " << playerSlot.getCurrentIndex(mode);
+            if (playerSlot.doneDifficulty(difficulty)) {
+                out << " " << playerSlot.getScore(difficulty)
+                    << " " << playerSlot.getLives(difficulty)
+                    << " " << playerSlot.getCurrentIndex(difficulty);
             }
 
             out << '\n';
@@ -180,7 +119,7 @@ const SaveSlot& SaveManager::getSlot(int index) const {
 }
 
 // Return true if a save already uses this player name.
-bool SaveManager::hasName(const string& name) const {
+bool SaveManager::nameTaken(const string& name) const {
     return findIndexByName(name) >= 0;
 }
 
@@ -195,7 +134,7 @@ int SaveManager::findIndexByName(const string& name) const {
 }
 
 // Insert a new slot or replace the existing slot with the same name.
-void SaveManager::upsertSlot(const SaveSlot& slot) {
+void SaveManager::update_insertSlot(const SaveSlot& slot) {
     int index = findIndexByName(slot.getName());
     if (index >= 0) {
         m_slots[index] = slot;

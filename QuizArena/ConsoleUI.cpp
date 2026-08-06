@@ -169,22 +169,22 @@ void ConsoleUI::showLeaderboard(const Leaderboard& board) const {
         board.getEntry(names[rank], entry);
 
         cout << (rank + 1) << "\t" << names[rank];
-        for (int mode = 0; mode < LEADERBOARD_MODE_COUNT; mode++) {
+        for (int difficulty = 0; difficulty < numOfDifficulties; difficulty++) {
             cout << "\t";
-            // A negative score means this mode was never played.
-            if (entry.getScore(mode) < 0) {
+            // A negative score means this difficulty was never played.
+            if (entry.getScore(difficulty) < 0) {
                 cout << "X";
             } else {
-                cout << entry.getScore(mode);
+                cout << entry.getScore(difficulty);
             }
         }
         cout << "\t" << entry.getTotalScore() << endl;
     }
 }
 
-// Print every saved player and the progress stored for each mode.
+// Print every saved player and the progress stored for each difficulty.
 void ConsoleUI::showSaveSlots(const SaveManager& saves,
-                              const int totalQuestionsPerMode[SAVE_MODE_COUNT]) const {
+                              const int totalQuestionsPerDifficulty[numOfDifficulties]) const {
     cout << endl;
     cout << "===== SAVED GAMES =====" << endl;
 
@@ -197,21 +197,21 @@ void ConsoleUI::showSaveSlots(const SaveManager& saves,
         const SaveSlot& playersave = saves.getSlot(i);
         cout << (i + 1) << ") " << playersave.getName() << endl;
 
-        for (int mode = 0; mode < SAVE_MODE_COUNT; mode++) {
-            cout << "   " << difficultyName(mode) << ": ";
+        for (int difficulty = 0; difficulty < numOfDifficulties; difficulty++) {
+            cout << "   " << difficultyName(difficulty) << ": ";
 
-            if (!playersave.hasMode(mode)) {
+            if (!playersave.doneDifficulty(difficulty)) {
                 cout << "X" << endl;
             } else {
-                int currentquestion = playersave.getCurrentIndex(mode) + 1;
-                if (currentquestion > totalQuestionsPerMode[mode]) {
-                    currentquestion = totalQuestionsPerMode[mode];
+                int currentquestion = playersave.getCurrentIndex(difficulty) + 1;
+                if (currentquestion > totalQuestionsPerDifficulty[difficulty]) {
+                    currentquestion = totalQuestionsPerDifficulty[difficulty];
                 }
 
-                cout << "score " << playersave.getScore(mode)
-                     << " | lives " << playersave.getLives(mode)
+                cout << "score " << playersave.getScore(difficulty)
+                     << " | lives " << playersave.getLives(difficulty)
                      << " | Q " << currentquestion << "/"
-                     << totalQuestionsPerMode[mode]
+                     << totalQuestionsPerDifficulty[difficulty]
                      << endl;
             }
         }
@@ -234,10 +234,10 @@ int ConsoleUI::askSaveNumber(int count) const {
     return readInt(0, count);
 }
 
-// Ask whether to continue a saved mode or start that mode again.
+// Ask whether to continue a saved difficulty or start that difficulty again.
 int ConsoleUI::askContinueOrNew() const {
     cout << endl;
-    cout << "Choose an action for this mode:" << endl;
+    cout << "Choose an action for this difficulty:" << endl;
     cout << "1) Continue saved progress" << endl;
     cout << "2) Start a new run" << endl;
     return readInt(1, 2);
@@ -252,7 +252,7 @@ string ConsoleUI::askSaveNameNotTaken(const SaveManager& saves) const {
         if (name.empty()) {
             name = "Player";
         }
-        if (!saves.hasName(name)) {
+        if (!saves.nameTaken(name)) {
             return name;
         }
         cout << "That name is already used by a saved game. Please choose another name." << endl;

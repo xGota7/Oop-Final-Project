@@ -1,55 +1,14 @@
 #include "Leaderboard.h"
 #include <fstream>
 
-static const int NOT_PLAYED = -1;
-
-// Create an entry with no scores in any mode.
-LeaderboardEntry::LeaderboardEntry() {
-    m_lastOrder = 0;
-    for (int mode = 0; mode < LEADERBOARD_MODE_COUNT; mode++) {
-        m_scores[mode] = NOT_PLAYED;
-    }
-}
-
-// Return the best score stored for one mode.
-int LeaderboardEntry::getScore(int mode) const {
-    return m_scores[mode];
-}
-
-// Store the best score for one mode.
-void LeaderboardEntry::setScore(int mode, int score) {
-    m_scores[mode] = score;
-}
-
-// Return when this player last finished a counted game.
-int LeaderboardEntry::getLastOrder() const {
-    return m_lastOrder;
-}
-
-// Store the order value used to break ties.
-void LeaderboardEntry::setLastOrder(int order) {
-    m_lastOrder = order;
-}
-
-// Sum only modes that were actually played.
-int LeaderboardEntry::getTotalScore() const {
-    int total = 0;
-    for (int mode = 0; mode < LEADERBOARD_MODE_COUNT; mode++) {
-        if (m_scores[mode] > NOT_PLAYED) {
-            total += m_scores[mode];
-        }
-    }
-    return total;
-}
-
 // Create an empty leaderboard.
 Leaderboard::Leaderboard() {
     m_nextOrder = 0;
 }
 
-// Keep the better score for this mode and mark the player as most recent.
-void Leaderboard::submitResult(const string& name, int score, int mode) {
-    if (mode < 0 || mode >= LEADERBOARD_MODE_COUNT) {
+// Keep the better score for this difficulty and mark the player as most recent.
+void Leaderboard::submitResult(const string& name, int score, int difficulty) {
+    if (difficulty < 0 || difficulty >= LeaderNumOfDifficulties) {
         return;
     }
 
@@ -58,15 +17,15 @@ void Leaderboard::submitResult(const string& name, int score, int mode) {
     unordered_map<string, LeaderboardEntry>::iterator foundPlayerEntry = m_entries.find(name);
     if (foundPlayerEntry == m_entries.end()) {
         LeaderboardEntry entry;
-        entry.setScore(mode, score);
+        entry.setScore(difficulty, score);
         entry.setLastOrder(m_nextOrder);
         m_entries[name] = entry;
         return;
     }
 
     foundPlayerEntry->second.setLastOrder(m_nextOrder);
-    if (score > foundPlayerEntry->second.getScore(mode)) {
-        foundPlayerEntry->second.setScore(mode, score);
+    if (score > foundPlayerEntry->second.getScore(difficulty)) {
+        foundPlayerEntry->second.setScore(difficulty, score);
     }
 }
 
@@ -81,8 +40,8 @@ bool Leaderboard::saveToFile(const string& path) const {
         out << "ENTRY" << '\n'
             << currentPlayerEntry->first << '\n'
             << currentPlayerEntry->second.getLastOrder();
-        for (int mode = 0; mode < LEADERBOARD_MODE_COUNT; mode++) {
-            out << " " << currentPlayerEntry->second.getScore(mode);
+        for (int difficulty = 0; difficulty < LeaderNumOfDifficulties; difficulty++) {
+            out << " " << currentPlayerEntry->second.getScore(difficulty);
         }
         out << '\n' << "END" << '\n';
     }
@@ -120,13 +79,13 @@ bool Leaderboard::loadFromFile(const string& path) {
         entry.setLastOrder(last);
 
         bool ok = true;
-        for (int mode = 0; mode < LEADERBOARD_MODE_COUNT; mode++) {
+        for (int difficulty = 0; difficulty < LeaderNumOfDifficulties; difficulty++) {
             int score = 0;
             if (!(in >> score)) {
                 ok = false;
                 break;
             }
-            entry.setScore(mode, score);
+            entry.setScore(difficulty, score);
         }
 
         string endMark;

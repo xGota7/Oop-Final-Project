@@ -191,7 +191,7 @@ bool QuizGame::loadQuestions(const string& path) {
     return !m_questions.empty();
 }
 
-// Return true when the current score reached the target for this mode.
+// Return true when the current score reached the target for this difficulty.
 bool QuizGame::isWin() const {
     return m_player.getScore() >= m_targetScore;
 }
@@ -249,9 +249,9 @@ void QuizGame::openSavesMenu(ConsoleUI& ui) {
 
     bool done = false;
     while (!done) {
-        int totals[SAVE_MODE_COUNT];
-        for (int mode = 0; mode < SAVE_MODE_COUNT; mode++) {
-            totals[mode] = getQuestionCountForDifficulty(mode);
+        int totals[numOfDifficulties];
+        for (int difficulty = 0; difficulty < numOfDifficulties; difficulty++) {
+            totals[difficulty] = getQuestionCountForDifficulty(difficulty);
         }
         ui.showSaveSlots(saves, totals);
 
@@ -269,26 +269,26 @@ void QuizGame::openSavesMenu(ConsoleUI& ui) {
 
         if (action == 1) {
             const SaveSlot& slot = saves.getSlot(index);
-            int mode = ui.askDifficulty(LIVES, TARGETS);
+            int difficulty = ui.askDifficulty(LIVES, TARGETS);
 
-            applyDifficulty(mode);
-            if (!loadQuestionsForDifficulty(mode)) {
+            applyDifficulty(difficulty);
+            if (!loadQuestionsForDifficulty(difficulty)) {
                 ui.showError("Could not load questions for this difficulty.");
                 return;
             }
 
             m_player.setName(slot.getName());
 
-            if (!slot.hasMode(mode)) {
-                ui.showMessage("No saved progress for this mode yet. Starting a new run.");
+            if (!slot.doneDifficulty(difficulty)) {
+                ui.showMessage("No saved progress for this difficulty yet. Starting a new run.");
                 m_player = Player(slot.getName(), m_startLives);
                 m_currentIndex = 0;
             } else {
                 int loadAction = ui.askContinueOrNew();
                 if (loadAction == 1) {
-                    m_player.setScore(slot.getScore(mode));
-                    m_player.setLives(slot.getLives(mode));
-                    m_currentIndex = slot.getCurrentIndex(mode);
+                    m_player.setScore(slot.getScore(difficulty));
+                    m_player.setLives(slot.getLives(difficulty));
+                    m_currentIndex = slot.getCurrentIndex(difficulty);
                 } else {
                     m_player = Player(slot.getName(), m_startLives);
                     m_currentIndex = 0;
@@ -388,12 +388,12 @@ bool QuizGame::updateSaveSlot() {
         slot.setName(m_player.getName());
     }
 
-    slot.setHasMode(m_difficulty, true);
+    slot.setDoneDifficulty(m_difficulty, true);
     slot.setScore(m_difficulty, m_player.getScore());
     slot.setLives(m_difficulty, m_player.getLives());
     slot.setCurrentIndex(m_difficulty, m_currentIndex);
 
-    saves.upsertSlot(slot);
+    saves.update_insertSlot(slot);
     return saves.store();
 }
 

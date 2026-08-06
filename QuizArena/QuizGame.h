@@ -32,7 +32,7 @@ private:
 
     void addQuestion(Question* question);
     void clearQuestions();
-    void copyFrom(const QuizGame& other);
+    void copyFrom(const QuizGame& other);  
 
     void applyDifficulty(int difficulty);
     string questionFileForDifficulty(int difficulty) const;
