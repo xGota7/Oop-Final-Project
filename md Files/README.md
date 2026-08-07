@@ -12,7 +12,7 @@ The difficulty also changes the number of lives and the target score.
 | Difficulty | Lives | Target Score |
 |------------|-------|--------------|
 | Easy       |   5   |      85      |
-| Normal	 |   4   |      90      |
+| Normal	   |   4   |      90      |
 | Hard       |   3   |      95      |	
 
 
@@ -58,15 +58,15 @@ All questions and answers must be written in English and must follow the existin
 A multiple choice question starts with `MC`, followed by the question, four answer options, and the correct answer number from `1` to `4`.
   Example:
       MC
-      What is 8 + 6?
-      14
-      13
-      15
-      16
-      1
+      If x + 3 = 5 + 7, what is x?
+      8
+      9
+      10
+      12
+      2
 
 A true or false question starts with `TF`, followed by the statement and the correct answer number. Use `1` for True and `2` for False.
   Example:
       TF
-      6 + 7 equals 14.
-      2
+      If x + 5 = 9 + 2, then x equals 6.
+      1
