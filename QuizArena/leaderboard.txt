@@ -1,4 +1,0 @@
-ENTRY
-shir
-1 95 -1 -1
-END
