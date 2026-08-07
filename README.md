@@ -189,10 +189,10 @@ classDiagram
 
     class SaveSlot {
         -m_name : string
-        -m_hasMode : bool[3]
+        -m_doneDifficulty : bool[3]
         -m_score : int[3]
         -m_lives : int[3]
-        -m_currentIndex : int[3]
+        -m_questionIndex : int[3]
     }
 
     class SaveManager {
@@ -209,7 +209,7 @@ classDiagram
         -m_difficulty : int
         -m_targetScore : int
         -m_startLives : int
-        -m_currentIndex : int
+        -m_questionIndex : int
         +loadQuestions(path : const string&) bool
         +loadQuestionsForDifficulty(difficulty : int) bool
         +run(ui : ConsoleUI&) void
@@ -220,7 +220,7 @@ classDiagram
         +askDifficulty(lives : const int[], targets : const int[]) const : int
         +showQuestion(question : const Question&, number : int, total : int) const : void
         +showLeaderboard(board : const Leaderboard&) const : void
-        +showSaveSlots(saves : const SaveManager&, totalQuestionsPerMode : const int[3]) const : void
+        +showSaveSlots(saves : const SaveManager&, totalQuestionsPerDifficulty : const int[3]) const : void
     }
 
     Question <|-- MultipleChoiceQuestion : inherits

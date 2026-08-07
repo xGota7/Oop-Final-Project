@@ -7,7 +7,7 @@ SaveSlot::SaveSlot() {
         m_doneDifficulty[i] = false;
         m_score[i] = 0;
         m_lives[i] = 0;
-        m_currentIndex[i] = 0;
+        m_questionIndex[i] = 0;
     }
 }
 
@@ -53,10 +53,10 @@ void SaveSlot::setLives(int difficulty, int lives) {
 
 // Return the next question index saved for one difficulty.
 int SaveSlot::getCurrentIndex(int difficulty) const {
-    return m_currentIndex[difficulty];
+    return m_questionIndex[difficulty];
 }
 
 // Store the next question index for one difficulty.
 void SaveSlot::setCurrentIndex(int difficulty, int currentIndex) {
-    m_currentIndex[difficulty] = currentIndex;
+    m_questionIndex[difficulty] = currentIndex;
 }

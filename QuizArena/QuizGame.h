@@ -28,7 +28,7 @@ private:
     int m_difficulty;
     int m_targetScore;
     int m_startLives;
-    int m_currentIndex;
+    int m_questionIndex;
 
     void addQuestion(Question* question);
     void clearQuestions();

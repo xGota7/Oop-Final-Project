@@ -27,8 +27,8 @@ public:
     // Fill names with players sorted by total score, then by most recent play.
     void getSortedNames(vector<string>& names) const;
 
-    // Copy one player's data into out. Returns false if the name is unknown.
-    bool getEntry(const string& name, LeaderboardEntry& out) const;
+    // Copy one player's data into foundEntry. Returns false if the name is unknown.
+    bool getEntry(const string& name, LeaderboardEntry& foundEntry) const;
 };
 
 #endif

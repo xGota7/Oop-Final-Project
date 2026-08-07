@@ -11,17 +11,17 @@ SaveManager::SaveManager(const string& path) {
 // Read one difficulty block from the save file into a slot.
 static bool readDifficultyBlock(ifstream& in, SaveSlot& slot, int difficulty) {
     string label;
-    int active = 0;
+    int isSaved = 0;
 
     if (!(in >> label) || label != DIFFICULTY_LABELS[difficulty]) {
         return false;
     }
-    if (!(in >> active)) {
+    if (!(in >> isSaved)) {
         return false;
     }
 
-    slot.setDoneDifficulty(difficulty, active != 0);
-    if (active == 0) {
+    slot.setDoneDifficulty(difficulty, isSaved != 0);
+    if (isSaved == 0) {
         return true;
     }
 

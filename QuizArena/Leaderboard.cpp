@@ -70,13 +70,13 @@ bool Leaderboard::loadFromFile(const string& path) {
             break;
         }
 
-        int last = 0;
-        if (!(in >> last)) {
+        int lastOrder = 0;
+        if (!(in >> lastOrder)) {
             break;
         }
 
         LeaderboardEntry entry;
-        entry.setLastOrder(last);
+        entry.setLastOrder(lastOrder);
 
         bool ok = true;
         for (int difficulty = 0; difficulty < LeaderNumOfDifficulties; difficulty++) {
@@ -94,8 +94,8 @@ bool Leaderboard::loadFromFile(const string& path) {
         }
 
         m_entries[name] = entry;
-        if (last > m_nextOrder) {
-            m_nextOrder = last;
+        if (lastOrder > m_nextOrder) {
+            m_nextOrder = lastOrder;
         }
     }
 
@@ -121,11 +121,11 @@ void Leaderboard::getSortedNames(vector<string>& names) const {
         int best = i;
         for (int j = i + 1; j < (int)names.size(); j++) {
             const LeaderboardEntry& candidate = m_entries.find(names[j])->second;
-            const LeaderboardEntry& current = m_entries.find(names[best])->second;
+            const LeaderboardEntry& leadingPlayer = m_entries.find(names[best])->second;
 
-            if (candidate.getTotalScore() > current.getTotalScore()
-                || (candidate.getTotalScore() == current.getTotalScore()
-                    && candidate.getLastOrder() > current.getLastOrder())) {
+            if (candidate.getTotalScore() > leadingPlayer.getTotalScore()
+                || (candidate.getTotalScore() == leadingPlayer.getTotalScore()
+                    && candidate.getLastOrder() > leadingPlayer.getLastOrder())) {
                 best = j;
             }
         }
@@ -137,12 +137,12 @@ void Leaderboard::getSortedNames(vector<string>& names) const {
     }
 }
 
-// Copy one entry by name into out.
-bool Leaderboard::getEntry(const string& name, LeaderboardEntry& out) const {
+// Copy one entry by name into foundEntry.
+bool Leaderboard::getEntry(const string& name, LeaderboardEntry& foundEntry) const {
     unordered_map<string, LeaderboardEntry>::const_iterator foundPlayerEntry = m_entries.find(name);
     if (foundPlayerEntry == m_entries.end()) {
         return false;
     }
-    out = foundPlayerEntry->second;
+    foundEntry = foundPlayerEntry->second;
     return true;
 }

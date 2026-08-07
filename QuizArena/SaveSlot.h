@@ -14,7 +14,7 @@ private:
     bool m_doneDifficulty[numOfDifficulties];
     int m_score[numOfDifficulties];
     int m_lives[numOfDifficulties];
-    int m_currentIndex[numOfDifficulties];
+    int m_questionIndex[numOfDifficulties];
 
 public:
     SaveSlot();

@@ -8,6 +8,7 @@ This file documents the current class structure of **Quiz Arena** according to t
 ## Mermaid Class Diagram
 
 ```mermaid
+
 classDiagram
     class Question {
         <<abstract>>
@@ -65,8 +66,8 @@ classDiagram
         -m_scores : int[3]
         -m_lastOrder : int
         +LeaderboardEntry()
-        +getScore(mode : int) const : int
-        +setScore(mode : int, score : int) void
+        +getScore(difficulty : int) const : int
+        +setScore(difficulty : int, score : int) void
         +getLastOrder() const : int
         +setLastOrder(order : int) void
         +getTotalScore() const : int
@@ -76,31 +77,31 @@ classDiagram
         -m_entries : unordered_map~string, LeaderboardEntry~
         -m_nextOrder : int
         +Leaderboard()
-        +submitResult(name : const string&, score : int, mode : int) void
+        +submitResult(name : const string&, score : int, difficulty : int) void
         +saveToFile(path : const string&) const : bool
         +loadFromFile(path : const string&) bool
         +getCount() const : int
         +getSortedNames(names : vector~string~&) const : void
-        +getEntry(name : const string&, out : LeaderboardEntry&) const : bool
+        +getEntry(name : const string&, foundEntry : LeaderboardEntry&) const : bool
     }
 
     class SaveSlot {
         -m_name : string
-        -m_hasMode : bool[3]
+        -m_doneDifficulty : bool[3]
         -m_score : int[3]
         -m_lives : int[3]
-        -m_currentIndex : int[3]
+        -m_questionIndex : int[3]
         +SaveSlot()
         +setName(name : const string&) void
         +getName() const : const string&
-        +hasMode(mode : int) const : bool
-        +setHasMode(mode : int, has : bool) void
-        +getScore(mode : int) const : int
-        +setScore(mode : int, score : int) void
-        +getLives(mode : int) const : int
-        +setLives(mode : int, lives : int) void
-        +getCurrentIndex(mode : int) const : int
-        +setCurrentIndex(mode : int, currentIndex : int) void
+        +doneDifficulty(difficulty : int) const : bool
+        +setDoneDifficulty(difficulty : int, done : bool) void
+        +getScore(difficulty : int) const : int
+        +setScore(difficulty : int, score : int) void
+        +getLives(difficulty : int) const : int
+        +setLives(difficulty : int, lives : int) void
+        +getCurrentIndex(difficulty : int) const : int
+        +setCurrentIndex(difficulty : int, currentIndex : int) void
     }
 
     class SaveManager {
@@ -111,9 +112,9 @@ classDiagram
         +store() const : bool
         +getCount() const : int
         +getSlot(index : int) const : const SaveSlot&
-        +hasName(name : const string&) const : bool
+        +nameTaken(name : const string&) const : bool
         +findIndexByName(name : const string&) const : int
-        +upsertSlot(slot : const SaveSlot&) void
+        +update_insertSlot(slot : const SaveSlot&) void
         +removeSlot(index : int) bool
     }
 
@@ -126,7 +127,7 @@ classDiagram
         -m_difficulty : int
         -m_targetScore : int
         -m_startLives : int
-        -m_currentIndex : int
+        -m_questionIndex : int
         -addQuestion(question : Question*) void
         -clearQuestions() void
         -copyFrom(other : const QuizGame&) void
@@ -162,7 +163,7 @@ classDiagram
         +showStatus(player : const Player&) const : void
         +showGameOver(won : bool, player : const Player&, targetScore : int) const : void
         +showLeaderboard(board : const Leaderboard&) const : void
-        +showSaveSlots(saves : const SaveManager&, totalQuestionsPerMode : const int[3]) const : void
+        +showSaveSlots(saves : const SaveManager&, totalQuestionsPerDifficulty : const int[3]) const : void
         +askSavesAction() const : int
         +askSaveNumber(count : int) const : int
         +askContinueOrNew() const : int
@@ -174,12 +175,12 @@ classDiagram
     Question <|-- MultipleChoiceQuestion : inherits
     Question <|-- TrueFalseQuestion : inherits
     
-    QuizGame "1" *-- "0..*" Question : owns questions in vector
-    QuizGame "1" *-- "1" Player : contains
-    QuizGame "1" *-- "1" Leaderboard : contains
+    QuizGame *--  Question : owns questions in vector
+    QuizGame  *-- Player : contains
+    QuizGame  *-- Leaderboard : contains
     
-    Leaderboard "1" *-- "0..*" LeaderboardEntry : stores entries in map
-    SaveManager "1" *-- "0..*" SaveSlot : stores slots in vector
+    Leaderboard  *--  LeaderboardEntry : stores entries in map
+    SaveManager  *--  SaveSlot : stores slots in vector
     
     QuizGame --> SaveManager : uses
     QuizGame --> ConsoleUI : uses
@@ -188,6 +189,7 @@ classDiagram
     ConsoleUI --> Player : reads
     ConsoleUI --> Leaderboard : reads
     ConsoleUI --> SaveManager : reads
+
 ```
 
 ---
@@ -225,7 +227,7 @@ classDiagram
    | - m_player : Player                                          |
    | - m_leaderboard : Leaderboard                                |
    | - m_difficulty / m_targetScore / m_startLives : int          |
-   | - m_currentIndex : int                                       |
+   | - m_questionIndex : int                                      |
    |---------------------------------------------------------------|
    | + loadQuestions(path)                                        |
    | + loadQuestionsForDifficulty(difficulty)                     |

@@ -194,23 +194,23 @@ void ConsoleUI::showSaveSlots(const SaveManager& saves,
     }
 
     for (int i = 0; i < saves.getCount(); i++) {
-        const SaveSlot& playersave = saves.getSlot(i);
-        cout << (i + 1) << ") " << playersave.getName() << endl;
+        const SaveSlot& playerSave = saves.getSlot(i);
+        cout << (i + 1) << ") " << playerSave.getName() << endl;
 
         for (int difficulty = 0; difficulty < numOfDifficulties; difficulty++) {
             cout << "   " << difficultyName(difficulty) << ": ";
 
-            if (!playersave.doneDifficulty(difficulty)) {
+            if (!playerSave.doneDifficulty(difficulty)) {
                 cout << "X" << endl;
             } else {
-                int currentquestion = playersave.getCurrentIndex(difficulty) + 1;
-                if (currentquestion > totalQuestionsPerDifficulty[difficulty]) {
-                    currentquestion = totalQuestionsPerDifficulty[difficulty];
+                int currentQuestion = playerSave.getCurrentIndex(difficulty) + 1;
+                if (currentQuestion > totalQuestionsPerDifficulty[difficulty]) {
+                    currentQuestion = totalQuestionsPerDifficulty[difficulty];
                 }
 
-                cout << "score " << playersave.getScore(difficulty)
-                     << " | lives " << playersave.getLives(difficulty)
-                     << " | Q " << currentquestion << "/"
+                cout << "score " << playerSave.getScore(difficulty)
+                     << " | lives " << playerSave.getLives(difficulty)
+                     << " | Q " << currentQuestion << "/"
                      << totalQuestionsPerDifficulty[difficulty]
                      << endl;
             }

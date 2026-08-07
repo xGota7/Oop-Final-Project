@@ -18,7 +18,7 @@ static const char* LEADERBOARD_PATH = "leaderboard.txt";
 
 // Create a game with the normal difficulty as the default.
 QuizGame::QuizGame() {
-    m_currentIndex = 0;
+    m_questionIndex = 0;
     applyDifficulty(DIFFICULTY_NORMAL);
 }
 
@@ -58,7 +58,7 @@ void QuizGame::copyFrom(const QuizGame& other) {
     m_difficulty = other.m_difficulty;
     m_targetScore = other.m_targetScore;
     m_startLives = other.m_startLives;
-    m_currentIndex = other.m_currentIndex;
+    m_questionIndex = other.m_questionIndex;
 }
 
 // Take ownership of one question pointer.
@@ -232,7 +232,7 @@ void QuizGame::startNewGame(ConsoleUI& ui) {
     }
 
     m_player = Player(name, m_startLives);
-    m_currentIndex = 0;
+    m_questionIndex = 0;
 
     playSession(ui);
 }
@@ -249,14 +249,14 @@ void QuizGame::openSavesMenu(ConsoleUI& ui) {
 
     bool done = false;
     while (!done) {
-        int totals[numOfDifficulties];
+        int numQperDifficulty[numOfDifficulties];
         for (int difficulty = 0; difficulty < numOfDifficulties; difficulty++) {
-            totals[difficulty] = getQuestionCountForDifficulty(difficulty);
+            numQperDifficulty[difficulty] = getQuestionCountForDifficulty(difficulty);
         }
-        ui.showSaveSlots(saves, totals);
+        ui.showSaveSlots(saves, numQperDifficulty);
 
-        int action = ui.askSavesAction();
-        if (action == 3) {
+        int menuChoice = ui.askSavesAction();
+        if (menuChoice == 3) {
             done = true;
             continue;
         }
@@ -267,7 +267,7 @@ void QuizGame::openSavesMenu(ConsoleUI& ui) {
         }
         int index = number - 1;
 
-        if (action == 1) {
+        if (menuChoice == 1) {
             const SaveSlot& slot = saves.getSlot(index);
             int difficulty = ui.askDifficulty(LIVES, TARGETS);
 
@@ -282,16 +282,16 @@ void QuizGame::openSavesMenu(ConsoleUI& ui) {
             if (!slot.doneDifficulty(difficulty)) {
                 ui.showMessage("No saved progress for this difficulty yet. Starting a new run.");
                 m_player = Player(slot.getName(), m_startLives);
-                m_currentIndex = 0;
+                m_questionIndex = 0;
             } else {
                 int loadAction = ui.askContinueOrNew();
                 if (loadAction == 1) {
                     m_player.setScore(slot.getScore(difficulty));
                     m_player.setLives(slot.getLives(difficulty));
-                    m_currentIndex = slot.getCurrentIndex(difficulty);
+                    m_questionIndex = slot.getCurrentIndex(difficulty);
                 } else {
                     m_player = Player(slot.getName(), m_startLives);
-                    m_currentIndex = 0;
+                    m_questionIndex = 0;
                 }
             }
 
@@ -299,7 +299,7 @@ void QuizGame::openSavesMenu(ConsoleUI& ui) {
             return;
         }
 
-        if (action == 2) {
+        if (menuChoice == 2) {
             if (saves.removeSlot(index)) {
                 saves.store();
                 ui.showMessage("Save deleted.");
@@ -320,41 +320,41 @@ void QuizGame::playSession(ConsoleUI& ui) {
     }
 
     bool quitToMenu = false;
-    while (m_currentIndex < (int)m_questions.size()
+    while (m_questionIndex < (int)m_questions.size()
            && m_player.isAlive() && !quitToMenu) {
-        Question* current = m_questions[m_currentIndex];
-        if (current == nullptr) {
-            m_currentIndex++;
+        Question* currentQuestion = m_questions[m_questionIndex];
+        if (currentQuestion == nullptr) {
+            m_questionIndex++;
             continue;
         }
 
         ui.showStatus(m_player);
-        ui.showQuestion(*current, m_currentIndex + 1, (int)m_questions.size());
+        ui.showQuestion(*currentQuestion, m_questionIndex + 1, (int)m_questions.size());
 
-        int action = ui.askAnswerOrCommand(current->getOptionCount());
-        if (action == -1) {
+        int answerChoice = ui.askAnswerOrCommand(currentQuestion->getOptionCount());
+        if (answerChoice == -1) {
             saveCurrentGame(ui);
             quitToMenu = true;
             continue;
         }
 
-        int answerIndex = action - 1;
-        if (current->checkAnswer(answerIndex)) {
-            m_player.addScore(current->getPoints());
-            ui.showAnswerResult(true, "", current->getPoints(), m_player.getLives());
+        int answerIndex = answerChoice - 1;
+        if (currentQuestion->checkAnswer(answerIndex)) {
+            m_player.addScore(currentQuestion->getPoints());
+            ui.showAnswerResult(true, "", currentQuestion->getPoints(), m_player.getLives());
         } else {
             m_player.loseLife();
-            string correctText = current->getOption(0);
-            for (int i = 0; i < current->getOptionCount(); i++) {
-                if (current->checkAnswer(i)) {
-                    correctText = current->getOption(i);
+            string correctText = currentQuestion->getOption(0);
+            for (int i = 0; i < currentQuestion->getOptionCount(); i++) {
+                if (currentQuestion->checkAnswer(i)) {
+                    correctText = currentQuestion->getOption(i);
                     break;
                 }
             }
             ui.showAnswerResult(false, correctText, 0, m_player.getLives());
         }
 
-        m_currentIndex++;
+        m_questionIndex++;
     }
 
     if (quitToMenu) {
@@ -391,7 +391,7 @@ bool QuizGame::updateSaveSlot() {
     slot.setDoneDifficulty(m_difficulty, true);
     slot.setScore(m_difficulty, m_player.getScore());
     slot.setLives(m_difficulty, m_player.getLives());
-    slot.setCurrentIndex(m_difficulty, m_currentIndex);
+    slot.setCurrentIndex(m_difficulty, m_questionIndex);
 
     saves.update_insertSlot(slot);
     return saves.store();
