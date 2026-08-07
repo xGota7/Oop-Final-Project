@@ -32,6 +32,11 @@ static bool readDifficultyBlock(ifstream& in, SaveSlot& slot, int difficulty) {
         return false;
     }
 
+    // Negative question index means the save file is corrupted.
+    if (currentIndex < 0) {
+        return false;
+    }
+
     slot.setScore(difficulty, score);
     slot.setLives(difficulty, lives);
     slot.setCurrentIndex(difficulty, currentIndex);
@@ -39,12 +44,14 @@ static bool readDifficultyBlock(ifstream& in, SaveSlot& slot, int difficulty) {
 }
 
 // Load every SAVE block from the file into memory.
+// Returns true when the file is missing (empty list) or all saves parse correctly.
+// Returns false when a SAVE block is corrupted or incomplete.
 bool SaveManager::load() {
     m_slots.clear();
 
     ifstream in(m_path.c_str());
     if (!in.is_open()) {
-        return false;
+        return true;
     }
 
     string line;
@@ -58,7 +65,8 @@ bool SaveManager::load() {
         string endMark;
 
         if (!getline(in, name)) {
-            break;
+            in.close();
+            return false;
         }
         slot.setName(name);
 
@@ -67,7 +75,8 @@ bool SaveManager::load() {
             ok = readDifficultyBlock(in, slot, difficulty);
         }
         if (!ok || !(in >> endMark) || endMark != "END") {
-            break;
+            in.close();
+            return false;
         }
 
         m_slots.push_back(slot);

@@ -240,7 +240,10 @@ void QuizGame::startNewGame(ConsoleUI& ui) {
 // Load, continue, restart, or delete a saved game.
 void QuizGame::openSavesMenu(ConsoleUI& ui) {
     SaveManager saves(SAVES_PATH);
-    saves.load();
+    if (!saves.load()) {
+        ui.showError("Save data is corrupted.");
+        return;
+    }
 
     if (saves.getCount() == 0) {
         ui.showMessage("No saved games yet.");
@@ -286,9 +289,14 @@ void QuizGame::openSavesMenu(ConsoleUI& ui) {
             } else {
                 int loadAction = ui.askContinueOrNew();
                 if (loadAction == 1) {
+                    int savedQuestionIndex = slot.getCurrentIndex(difficulty);
+                    if (savedQuestionIndex < 0) {
+                        ui.showError("Save data is corrupted.");
+                        continue;
+                    }
                     m_player.setScore(slot.getScore(difficulty));
                     m_player.setLives(slot.getLives(difficulty));
-                    m_questionIndex = slot.getCurrentIndex(difficulty);
+                    m_questionIndex = savedQuestionIndex;
                 } else {
                     m_player = Player(slot.getName(), m_startLives);
                     m_questionIndex = 0;
@@ -316,6 +324,11 @@ void QuizGame::openSavesMenu(ConsoleUI& ui) {
 void QuizGame::playSession(ConsoleUI& ui) {
     if (m_questions.empty()) {
         ui.showError("No questions are loaded.");
+        return;
+    }
+
+    if (m_questionIndex < 0) {
+        ui.showError("Save data is corrupted.");
         return;
     }
 

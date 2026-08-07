@@ -16,7 +16,7 @@ private:
 public:
     SaveManager(const string& path);
 
-    bool load();  
+    bool load();  // false when save file content is corrupted
     bool store() const; 
 
     int getCount() const; 
