@@ -4,8 +4,8 @@
 static const char* DIFFICULTY_LABELS[numOfDifficulties] = {"EASY", "NORMAL", "HARD"};
 
 // Remember which file this manager reads and writes.
-SaveManager::SaveManager(const string& path) {
-    m_path = path;
+SaveManager::SaveManager(const string& path)
+    : m_path(path) {
 }
 
 // Read one difficulty block from the save file into a slot.

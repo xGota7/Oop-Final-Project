@@ -6,8 +6,7 @@ const int TF_FALSE_INDEX = 1;
 
 // Create a true or false question and store which side is correct.
 TrueFalseQuestion::TrueFalseQuestion(const string& text, int points, bool correctIsTrue)
-    : Question(text, points) {
-    m_correctIsTrue = correctIsTrue;
+    : Question(text, points), m_correctIsTrue(correctIsTrue) {
 }
 
 // No extra cleanup. This class owns no dynamic memory.

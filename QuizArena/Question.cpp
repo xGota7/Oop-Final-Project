@@ -1,9 +1,8 @@
 #include "Question.h"
 
 // Store the shared text and point value for every question type.
-Question::Question(const string& text, int points) {
-    m_text = text;
-    m_points = points;
+Question::Question(const string& text, int points)
+    : m_text(text), m_points(points) {
 }
 
 // Empty on purpose. Question itself owns no dynamic memory.

@@ -1,17 +1,13 @@
 #include "Player.h"
 
 // Create a player with default name and empty session values.
-Player::Player() {
-    m_name = "Player";
-    m_score = 0;
-    m_lives = 0;
+Player::Player()
+    : m_name("Player"), m_score(0), m_lives(0) {
 }
 
 // Create a player with a name and a starting life count.
-Player::Player(const string& name, int lives) {
-    m_name = name;
-    m_score = 0;
-    m_lives = lives;
+Player::Player(const string& name, int lives)
+    : m_name(name), m_score(0), m_lives(lives) {
 }
 
 // Set the player name.

@@ -3,8 +3,8 @@
 static const int NOT_PLAYED = -1;
 
 // Create an entry with no scores in any difficulty.
-LeaderboardEntry::LeaderboardEntry() {
-    m_lastOrder = 0;
+LeaderboardEntry::LeaderboardEntry()
+    : m_lastOrder(0) {
     for (int difficulty = 0; difficulty < LeaderNumOfDifficulties; difficulty++) {
         m_scores[difficulty] = NOT_PLAYED;
     }

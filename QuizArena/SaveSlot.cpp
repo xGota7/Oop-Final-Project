@@ -1,8 +1,8 @@
 #include "SaveSlot.h"
 
 // Create an empty slot with no progress in any difficulty.
-SaveSlot::SaveSlot() {
-    m_name = "";
+SaveSlot::SaveSlot()
+    : m_name("") {
     for (int i = 0; i < numOfDifficulties; i++) {
         m_doneDifficulty[i] = false;
         m_score[i] = 0;

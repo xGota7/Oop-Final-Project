@@ -17,8 +17,8 @@ static const char* SAVES_PATH = "saves.txt";
 static const char* LEADERBOARD_PATH = "leaderboard.txt";
 
 // Create a game with the normal difficulty as the default.
-QuizGame::QuizGame() {
-    m_questionIndex = 0;
+QuizGame::QuizGame()
+    : m_questionIndex(0) {
     applyDifficulty(DIFFICULTY_NORMAL);
 }
 

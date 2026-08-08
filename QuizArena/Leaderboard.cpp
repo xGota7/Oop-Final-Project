@@ -2,8 +2,8 @@
 #include <fstream>
 
 // Create an empty leaderboard.
-Leaderboard::Leaderboard() {
-    m_nextOrder = 0;
+Leaderboard::Leaderboard()
+    : m_nextOrder(0) {
 }
 
 // Keep the better score for this difficulty and mark the player as most recent.

@@ -3,12 +3,11 @@
 // Create a multiple choice question and copy its four options.
 MultipleChoiceQuestion::MultipleChoiceQuestion(const string& text, int points,
                                                const string options[], int correctIndex)
-    : Question(text, points) {
+    : Question(text, points), m_correctIndex(correctIndex) {
     // Copy the options so this object does not depend on the caller's array.
     for (int i = 0; i < MC_OPTION_COUNT; i++) {
         m_options[i] = options[i];
     }
-    m_correctIndex = correctIndex;
 }
 
 // No extra cleanup. string members free their own memory.
