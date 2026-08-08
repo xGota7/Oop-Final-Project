@@ -124,6 +124,7 @@ classDiagram
         -m_questions : vector~Question*~
         -m_player : Player
         -m_leaderboard : Leaderboard
+        -m_leaderboardCorrupted : bool
         -m_difficulty : int
         -m_targetScore : int
         -m_startLives : int
@@ -226,6 +227,7 @@ classDiagram
    | - m_questions : vector<Question*>                            |
    | - m_player : Player                                          |
    | - m_leaderboard : Leaderboard                                |
+   | - m_leaderboardCorrupted : bool                              |
    | - m_difficulty / m_targetScore / m_startLives : int          |
    | - m_questionIndex : int                                      |
    |---------------------------------------------------------------|

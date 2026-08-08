@@ -404,13 +404,17 @@ void QuizGame::playSession(ConsoleUI& ui) {
         }
     }
 
-    updateSaveSlot();
+    if (!updateSaveSlot()) {
+        ui.showError("Could not save the game.");
+    }
 }
 
 // Write the current player progress into saves.txt.
 bool QuizGame::updateSaveSlot() {
     SaveManager saves(SAVES_PATH);
-    saves.load();
+    if (!saves.load()) {
+        return false;
+    }
 
     SaveSlot slot;
     int index = saves.findIndexByName(m_player.getName());

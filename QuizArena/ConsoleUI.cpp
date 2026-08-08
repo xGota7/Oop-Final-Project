@@ -263,6 +263,10 @@ string ConsoleUI::askSaveNameNotTaken(const SaveManager& saves) const {
         if (name.empty()) {
             name = "Player";
         }
+        if (name.find(' ') != string::npos) {
+            cout << "Name cannot contain spaces." << endl;
+            continue;
+        }
         if (!saves.nameTaken(name)) {
             return name;
         }

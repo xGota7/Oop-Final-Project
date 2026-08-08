@@ -234,11 +234,11 @@ classDiagram
     Question <|-- MultipleChoiceQuestion : inherits
     Question <|-- TrueFalseQuestion : inherits
 
-    QuizGame "1" *-- "0..*" Question : owns questions in vector
-    QuizGame "1" *-- "1" Player : contains
-    QuizGame "1" *-- "1" Leaderboard : contains
-    Leaderboard "1" *-- "0..*" LeaderboardEntry : stores entries in map
-    SaveManager "1" *-- "0..*" SaveSlot : stores slots in vector
+    QuizGame  *--  Question : owns questions in vector
+    QuizGame  *--  Player : contains
+    QuizGame  *--  Leaderboard : contains
+    Leaderboard  *--  LeaderboardEntry : stores entries in map
+    SaveManager  *--  SaveSlot : stores slots in vector
 
     QuizGame --> SaveManager : uses
     QuizGame --> ConsoleUI : uses
