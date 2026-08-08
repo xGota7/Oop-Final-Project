@@ -26,7 +26,6 @@ int MultipleChoiceQuestion::getOptionCount() const {
 
 // Return one option text, or an empty string if the index is invalid.
 string MultipleChoiceQuestion::getOption(int index) const {
-    // Invalid index returns an empty string instead of throwing.
     if (index < 0 || index >= MC_OPTION_COUNT) {
         return "";
     }

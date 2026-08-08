@@ -17,7 +17,6 @@ void Player::setName(const string& name) {
 
 // Set the score. Negative values are stored as 0.
 void Player::setScore(int score) {
-    // Keep the stored score non negative.
     if (score < 0) {
         score = 0;
     }
@@ -26,7 +25,6 @@ void Player::setScore(int score) {
 
 // Set the life count. Negative values are stored as 0.
 void Player::setLives(int lives) {
-    // Keep the stored life count non negative.
     if (lives < 0) {
         lives = 0;
     }
@@ -34,8 +32,8 @@ void Player::setLives(int lives) {
 }
 
 // Add points to the score. Only positive values are applied.
+// Scoring rules live in QuizGame.
 void Player::addScore(int points) {
-    // Only positive gains are applied. Scoring rules live in QuizGame.
     if (points > 0) {
         m_score += points;
     }
