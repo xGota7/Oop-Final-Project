@@ -24,6 +24,7 @@ private:
 
     Player m_player;
     Leaderboard m_leaderboard;
+    bool m_leaderboardCorrupted; // true when loadFromFile failed
 
     int m_difficulty;
     int m_targetScore;

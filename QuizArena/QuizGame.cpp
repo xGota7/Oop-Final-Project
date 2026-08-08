@@ -18,7 +18,7 @@ static const char* LEADERBOARD_PATH = "leaderboard.txt";
 
 // Create a game with the normal difficulty as the default.
 QuizGame::QuizGame()
-    : m_questionIndex(0) {
+    : m_questionIndex(0), m_leaderboardCorrupted(false) {
     applyDifficulty(DIFFICULTY_NORMAL);
 }
 
@@ -55,6 +55,7 @@ void QuizGame::copyFrom(const QuizGame& other) {
 
     m_player = other.m_player;
     m_leaderboard = other.m_leaderboard;
+    m_leaderboardCorrupted = other.m_leaderboardCorrupted;
     m_difficulty = other.m_difficulty;
     m_targetScore = other.m_targetScore;
     m_startLives = other.m_startLives;
@@ -198,7 +199,7 @@ bool QuizGame::isWin() const {
 
 // Run the main menu until the player quits.
 void QuizGame::run(ConsoleUI& ui) {
-    m_leaderboard.loadFromFile(LEADERBOARD_PATH);
+    m_leaderboardCorrupted = !m_leaderboard.loadFromFile(LEADERBOARD_PATH);
 
     bool running = true;
     while (running) {
@@ -208,7 +209,11 @@ void QuizGame::run(ConsoleUI& ui) {
         } else if (choice == 2) {
             openSavesMenu(ui);
         } else if (choice == 3) {
-            ui.showLeaderboard(m_leaderboard);
+            if (m_leaderboardCorrupted) {
+                ui.showError("Leaderboard data is corrupted.");
+            } else {
+                ui.showLeaderboard(m_leaderboard);
+            }
         } else {
             running = false;
         }
@@ -219,8 +224,16 @@ void QuizGame::run(ConsoleUI& ui) {
 
 // Start a new named game at the chosen difficulty.
 void QuizGame::startNewGame(ConsoleUI& ui) {
+    if (m_leaderboardCorrupted) {
+        ui.showError("Leaderboard data is corrupted.");
+        return;
+    }
+
     SaveManager saves(SAVES_PATH);
-    saves.load();
+    if (!saves.load()) {
+        ui.showError("Save data is corrupted.");
+        return;
+    }
 
     string name = ui.askSaveNameNotTaken(saves);
     int difficulty = ui.askDifficulty(LIVES, TARGETS);
@@ -271,6 +284,11 @@ void QuizGame::openSavesMenu(ConsoleUI& ui) {
         int index = number - 1;
 
         if (menuChoice == 1) {
+            if (m_leaderboardCorrupted) {
+                ui.showError("Leaderboard data is corrupted.");
+                return;
+            }
+
             const SaveSlot& slot = saves.getSlot(index);
             int difficulty = ui.askDifficulty(LIVES, TARGETS);
 
@@ -380,6 +398,7 @@ void QuizGame::playSession(ConsoleUI& ui) {
     // Only scores that reached the target are stored on the leaderboard.
     if (isWin()) {
         m_leaderboard.submitResult(m_player.getName(), m_player.getScore(), m_difficulty);
+        m_leaderboardCorrupted = false;
         if (!m_leaderboard.saveToFile(LEADERBOARD_PATH)) {
             ui.showError("Could not update the leaderboard file.");
         }

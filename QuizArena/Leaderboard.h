@@ -20,6 +20,8 @@ public:
     void submitResult(const string& name, int score, int difficulty);
 
     bool saveToFile(const string& path) const;
+    // true when the file is missing (empty board) or all entries parse correctly.
+    // false when an ENTRY block is corrupted or incomplete.
     bool loadFromFile(const string& path);
 
     int getCount() const;

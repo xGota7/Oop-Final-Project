@@ -1,6 +1,6 @@
 SAVE
 Michael
-EASY 1 5 5 1
+EASY 1 95 4 20
 NORMAL 0
 HARD 0
 END

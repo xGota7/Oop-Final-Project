@@ -50,10 +50,11 @@ bool Leaderboard::saveToFile(const string& path) const {
 }
 
 // Load leaderboard entries from a text file.
+// Missing file is OK (empty board). Corrupted ENTRY data returns false.
 bool Leaderboard::loadFromFile(const string& path) {
     ifstream in(path.c_str());
     if (!in.is_open()) {
-        return false;
+        return true;
     }
 
     m_entries.clear();
@@ -67,12 +68,14 @@ bool Leaderboard::loadFromFile(const string& path) {
 
         string name;
         if (!getline(in, name)) {
-            break;
+            in.close();
+            return false;
         }
 
         int lastOrder = 0;
         if (!(in >> lastOrder)) {
-            break;
+            in.close();
+            return false;
         }
 
         LeaderboardEntry entry;
@@ -90,7 +93,8 @@ bool Leaderboard::loadFromFile(const string& path) {
 
         string endMark;
         if (!ok || !(in >> endMark) || endMark != "END") {
-            break;
+            in.close();
+            return false;
         }
 
         m_entries[name] = entry;
