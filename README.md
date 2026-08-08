@@ -11,7 +11,7 @@
 
 **Quiz Arena** challenges players with multiple-choice and true/false questions across three difficulty levels. The game includes persistent saves, score tracking, a multi-mode leaderboard, and a polymorphic question system.
 
-[Source Code](./QuizArena/) · [Build and Run](#build-and-run) · [UML Diagram](./md%20Files/uml_diagram.md) · [Presentation](./Presentation/) · [Project Brief](./OOP_Final_Project.pdf)
+[Source Code](./QuizArena/) · [Build and Run](#build-and-run) · [UML Diagram](./md%20Files/uml_diagram.md) · [Presentation](./Presentation/) · [Project Brief](./OOP_Final_Project.pdf) · [Error Handling](#error-handling)
 
 </div>
 
@@ -27,6 +27,7 @@
 - [Class Diagram](#class-diagram)
 - [Save System](#save-system)
 - [Leaderboard](#leaderboard)
+- [Error Handling](#error-handling)
 - [Build and Run](#build-and-run)
 - [Repository Structure](#repository-structure)
 - [Data File Formats](#data-file-formats)
@@ -48,8 +49,10 @@ The goal was to create a complete and playable terminal game while demonstrating
 - Separation between game logic, user interface, and data
 - Manual memory management
 - The Rule of Three and deep copying
+- Constructor initializer lists for member initialization
 - STL containers selected according to access patterns
 - File-based save, load, and leaderboard persistence
+- Defensive checks for null pointers and corrupted persistent files
 
 ---
 
@@ -65,6 +68,7 @@ The goal was to create a complete and playable terminal game while demonstrating
 | Load system | Continue saved progress or start a new run |
 | Leaderboard | Best score per mode plus total score |
 | Persistence | Questions, saves, and leaderboard stored in text files |
+| Error handling | Corrupted `saves.txt` / `leaderboard.txt` show an error and block play until fixed |
 | Interface | Fully terminal-based menu system |
 | Architecture | Logic, UI, data, saves, and leaderboard separated into classes |
 
@@ -142,7 +146,10 @@ Virtual methods are called through `Question*`, allowing the game to work with d
 | `QuizGame` owns question objects | Creates one clear owner responsible for allocation and deletion |
 | Virtual `clone()` | Allows deep copying of polymorphic question objects |
 | Rule of Three in `QuizGame` | Prevents leaks, shared ownership, and double deletion |
+| Constructor initializer lists | Members are initialized directly where possible (course style) |
+| `nullptr` checks on array parameters | Public APIs that receive arrays (for example question options) reject null pointers safely |
 | `bool` for expected failures | Save and file failures are handled without unnecessary exceptions |
+| Leaderboard corruption flag | Distinguishes a failed load from a truly empty leaderboard |
 
 ---
 
@@ -206,6 +213,7 @@ classDiagram
         -m_questions : vector~Question*~
         -m_player : Player
         -m_leaderboard : Leaderboard
+        -m_leaderboardCorrupted : bool
         -m_difficulty : int
         -m_targetScore : int
         -m_startLives : int
@@ -263,6 +271,7 @@ A mode that has never been played is displayed as `X`.
 - Finishing a game does not delete the save.
 - Saved games can be deleted only through the saved-games menu.
 - When loading, the player selects a difficulty and then chooses between continuing or starting a new run.
+- If `saves.txt` is corrupted, the game shows an error and does not start a new game or open the saved-games flow until the file is fixed.
 
 ---
 
@@ -282,6 +291,29 @@ For every player who wins at least one game, it records:
 - Total score across all played modes
 
 Rows are sorted by total score from highest to lowest. When two players have the same total, the player who played most recently is shown first.
+
+When loading from file, `m_nextOrder` is set to the maximum saved play order so the next win gets a new order value that does not collide with history.
+
+If `leaderboard.txt` is corrupted, viewing the leaderboard shows an error. Starting a new game or loading a save to play is also blocked until the file is fixed. Deleting a save is still allowed.
+
+---
+
+## Error Handling
+
+> **Persistent files**
+>
+> The game reads and writes two text files next to the executable:
+>
+> - `saves.txt` — player save slots (see [Save file format](#data-file-formats))
+> - `leaderboard.txt` — best scores per player (see [Leaderboard file format](#data-file-formats))
+>
+> A **missing** file on first run is normal: the game starts with no saves / an empty leaderboard.
+>
+> If either file **exists but is corrupted or incomplete**, the game prints an error such as:
+> - `ERROR: Save data is corrupted.`
+> - `ERROR: Leaderboard data is corrupted.`
+>
+> In that case you should **quit the game**, fix or replace the broken file (or delete it to start fresh), and **run the game again**. New game and load-to-play stay blocked while the leaderboard file is known to be corrupted, so a broken file is not silently treated as “empty.”
 
 ---
 
