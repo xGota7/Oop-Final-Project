@@ -62,6 +62,12 @@ int ConsoleUI::showMainMenu() const {
 
 // Ask for a difficulty and return it as a 0 based index.
 int ConsoleUI::askDifficulty(const int lives[], const int targets[]) const {
+    // Missing arrays: do not print lives/targets, use Normal.
+    if (lives == nullptr || targets == nullptr) {
+        showError("Difficulty data is missing. Using Normal.");
+        return 1; // Normal
+    }
+
     cout << endl;
     cout << "Choose difficulty:" << endl;
 
@@ -203,16 +209,21 @@ void ConsoleUI::showSaveSlots(const SaveManager& saves,
             if (!playerSave.doneDifficulty(difficulty)) {
                 cout << "X" << endl;
             } else {
-                int currentQuestion = playerSave.getCurrentIndex(difficulty) + 1;
-                if (currentQuestion > totalQuestionsPerDifficulty[difficulty]) {
-                    currentQuestion = totalQuestionsPerDifficulty[difficulty];
+                cout << "score " << playerSave.getScore(difficulty)
+                     << " | lives " << playerSave.getLives(difficulty);
+
+                // Missing array: still show score/lives, skip question progress.
+                if (totalQuestionsPerDifficulty != nullptr) {
+                    int currentQuestion = playerSave.getCurrentIndex(difficulty) + 1;
+                    if (currentQuestion > totalQuestionsPerDifficulty[difficulty]) {
+                        currentQuestion = totalQuestionsPerDifficulty[difficulty];
+                    }
+
+                    cout << " | Q " << currentQuestion << "/"
+                         << totalQuestionsPerDifficulty[difficulty];
                 }
 
-                cout << "score " << playerSave.getScore(difficulty)
-                     << " | lives " << playerSave.getLives(difficulty)
-                     << " | Q " << currentQuestion << "/"
-                     << totalQuestionsPerDifficulty[difficulty]
-                     << endl;
+                cout << endl;
             }
         }
     }
